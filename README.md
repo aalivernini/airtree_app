@@ -39,8 +39,11 @@ flutter pub add envied
 flutter pub add --dev envied_generator
 flutter pub add --dev build_runner
 ```
-5) compile the env file
-    - dart run build_runner build
+5) compile the env file and test the app on your android device
+```
+dart run build_runner build
+flutter run
+```
 
 
 
