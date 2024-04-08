@@ -1,5 +1,5 @@
 
-# Airtree (app)
+# Airtree app
 <img src='assets_github/ic_airtree.png' height='100'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src='assets_github/logo_crea.png' height='100'>
 
 
@@ -22,10 +22,10 @@ The estimates are carried out with the Airtree model, implemented in the server 
 With this information, Airtree estimates the amount of light that is captured by the tree's canopy, simulates the opening of the stomata on the leaves (the pores through which trees breathe) and then calculates the amount of carbon and pollutants removed from the atmosphere.
 
 ## Platforms
-Airtree app is currently working for Android
-Join testing for the app development by CREA
+Airtree app is currently being developed for Android.\
+Testing through Goole play in coming soon
 
-## Requirements for app testing from source code
+## Install from source code
 1) set up the [Flutter framework](https://docs.flutter.dev/get-started/install)
 2) clone the repository to a your directory (DIR)
 3) set up an airtree server
@@ -39,7 +39,7 @@ flutter pub add envied
 flutter pub add --dev envied_generator
 flutter pub add --dev build_runner
 ```
-5) compile the env file and test the app on your android device
+6) compile the env file and test the app on your android device
 ```
 dart run build_runner build
 flutter run
