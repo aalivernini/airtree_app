@@ -1,9 +1,13 @@
 # <img src='assets_github/ic_airtree.png' width='70'> Airtree app
 
-Copyright (c) 2023 Council for Agricultural Research and Economics (CREA)\n
+Copyright (c) 2023 Council for Agricultural Research and Economics (CREA)\
 Fundings:  POR FESR Lazio 2014-2020 (POR), project TECNOVERDE, CUP B85F20003230006
 
-The Airtree app allows you to survey and plan urban green within the Italian territory, with the possibility of geographically representing trees, rows and groves, and recording the species and various biometric characteristics, eg: trunk diameter, tree height.
+
+<img src='assets_github/airtree_fig_1.jpg' width='100'> <img src='assets_github/airtree_fig_2.jpg' width='100'>
+
+
+The Airtree app allows you to survey and plan urban green within the Italian territory, with the possibility of geographically representing trees, rows and groves, and recording the species and various biometric characteristics, eg: trunk diameter, tree height.\
 
 This information can be transmitted to the CNR servers to estimate the quantities of carbon dioxide and air pollutants (e.g. particulate matter and ground-level ozone) removed by the trees.
 
