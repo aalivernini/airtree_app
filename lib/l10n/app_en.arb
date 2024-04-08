@@ -1,0 +1,624 @@
+{
+    "irrigatedHelp": "Select this option if the trees are irrigated",
+    "textureHelp": "Select the soil texture for the project. If you have no information please select a mean texture",
+    "privateHelp": "Select this option if you do not want to share the project data with third parties",
+    "yearSimulationHelp": "Pollutant removal by vegetation will be assessed using local meteo data of the selected year",
+    "yearSimulation": "Reference year",
+    "insertGreen": "1) Tap on the orange icon and select a new tree/tree row/forest \n\n2) tap on the map to position the vegetation (multiple taps are required to position the tree rows or the forest)\n\n3) Use blue buttons to reset, change or confirm the vegetation position",
+    "helpLabel": "Show help labels",
+    "deleteProject": "Delete project",
+    "keepGreen": "Keep existing green option for the next insert",
+    "keepSpecies": "Keep the species for the next insertion",
+    "settings": "Settings",
+    "close": "close",
+    "language": "English",
+    "@language":{
+        "description": "The current language"
+    },
+
+    "terms": "Terms of Use",
+    "terms_accept": "I declare that I have read and understood the Terms of Use and I fully accept them",
+
+    "@terms":{
+        "description": "Terms of Use"
+    },
+    "privacy": "Privacy Policy",
+    "privacy_accept": "I declare that I have read and understood the Privacy Policy",
+
+
+    "helloWorld": "Hello world",
+    "@helloWorld":{
+        "description": "A programmer greeting"
+    },
+
+    "nameProject" : "Project name",
+    "nameProjectHelp" : "Project name",
+    "@nameProject":{
+        "description": "name project"
+    },
+
+    "dateProject" : "Date",
+    "@dateProject":{
+        "description": "date project"
+    },
+
+    "formatDate" : "MM.dd.yy",
+    "@formatDate":{
+        "description": "date format"
+    },
+
+    "projectList" : "Project List",
+    "@projectList" :{
+        "description" : "name page"
+    },
+
+    "addNewProject" : "New project",
+    "@addNewProject" :{
+        "description" : "new project"
+    },
+
+    "descr" : "Project description",
+    "descrHelp" : "Main focus of the project",
+    "@descr" :{
+        "description" : "descr"
+    },
+
+    "location" : "Location",
+    "locationHelp" : "name of the city, park , road...",
+    "@location" :{
+        "description" : "location"
+    },
+
+    "dateStart" : "Date start",
+    "@dateStart" :{
+        "description" : "dateStart"
+    },
+
+    "dateEnd" : "Date end",
+    "@dateEnd" :{
+        "description" : "dateEnd"
+    },
+
+    "soilTexture" : "Soil texture",
+    "@soilTexture" :{
+        "description" : "soilTexture"
+    },
+
+    "submit" : "Submit",
+    "@submit" :{
+        "description" : "submit"
+    },
+
+    "cancel" : "Cancel",
+    "@cancel" :{
+        "description" : "cancel"
+    },
+
+    "private" : "The project is private",
+    "@private" :{
+        "description" : "private"
+    },
+
+    "irrigated" : "The trees are irrigated",
+    "@irrigated" :{
+        "description" : "irrigated"
+    },
+
+    "submit" : "Submit",
+    "@submit" :{
+        "description" : "submit"
+    },
+
+    "mean" : "Mean",
+    "@mean" :{
+        "description" : "Mean"
+    },
+
+    "sandy" : "Sandy?",
+    "@sandy" :{
+        "description" : "Sandy"
+    },
+
+    "silty" : "Silty?",
+    "@silty" :{
+        "description" : "Silty"
+    },
+
+    "clay" : "Clay?",
+    "@clay" :{
+        "description" : "Clay"
+    },
+
+    "soilLanguage" : "en",
+    "@soilLanguage" : {
+        "description" : "language"
+    },
+
+    "rangeAirTree" : "AirTree has a maximum range of 15 Km",
+    "@rangeAirTree" : {
+        "description" : "desc"
+    },
+
+    "species" : "Species",
+    "@species" : {
+        "description" : "desc"
+    },
+
+    "diameter" : "Diameter of the stem (cm)",
+    "@diameter" : {
+        "description" : "desc"
+    },
+
+    "diameterHelp" : "Diameter of the stem (cm) taken at 1.3 m height. If the tree has a multiple stem, take the average of the diameters of the single stems. If the tree does not reach 1.3 m, insert zero",
+
+    "height" : "Height (m)",
+    "@height" : {
+        "description" : "desc"
+    },
+    "heightHelp" : "Height of the tree (m) taken from the ground to the highest point of the tree",
+
+    "crownHeight" : "Crown insertion height (m)",
+    "crownHeightHelp" : "Height (m) taken from the ground to height of the lowest point of the tree crown. Do not consider small branches ther are not connected to the main body of the crown",
+    "@crownHeight" : {
+        "description" : "desc"
+    },
+
+    "crownDiamater" : "Crown diamater (m)",
+    "@crownDiamater" : {
+        "description" : "desc"
+    },
+    "crownDiamaterHelp" : "Average diameter (m) of the crown projection  on the ground",
+
+    "lai" : "LAI",
+    "@lai" : {
+        "description" : "desc"
+    },
+    "laiHelp" : "Leaf Area Index: assess it by using the icon on the left",
+
+    "treeNumber" : "Number of trees",
+    "@treeNumber" : {
+        "description" : "desc"
+    },
+
+    "canopyCover" : "Canopy cover (%)",
+    "canopyCoverHelp" : "The percentage of the ground covered by vertical projection of the tree crowns",
+    "@canopyCover" : {
+        "description" : "desc"
+    },
+
+
+    "percentArea" : "Represented portion of the forest (%)",
+    "percentAreaHelp" : "Represented portion of the forest (%) fot the selected species and the parameters inserted",
+    "@treeNumber" : {
+        "description" : "desc"
+    },
+
+    "addInformation" : "Add information",
+    "@addInformation" : {
+        "description" : "desc"
+    },
+
+    "about" : "About",
+    "@about" : {
+        "description" : "desc"
+    },
+
+    "aboutPage" : "About",
+    "@about" : {
+        "description" : "desc"
+    },
+
+    "textAboutPage" : "insert text app_it.arb e in app_en.arb",
+    "@textAboutPage" :{
+        "description" : "desc"
+    },
+
+    "help" : "Help",
+    "@help" : {
+        "description" : "desc"
+    },
+
+    "helpPage" : "Help Page",
+    "@help" : {
+        "description" : "desc"
+    },
+
+    "textHelpPage" : "insert text app_it.arb e in app_en.arb",
+    "@textHelpPage" :{
+        "description" : "desc"
+    },
+
+    "firstName" : "First Name : {name}",
+    "@firstName": {
+        "description" : "descr",
+        "placeholders" : {
+            "name" : {
+                "type" : "String"
+            }
+        }
+    },
+
+    "lastName" : "Last Name : {name}",
+    "@lastName": {
+        "description" : "descr",
+        "placeholders" : {
+            "name" : {
+                "type" : "String"
+            }
+        }
+    },
+
+    "userName" : "Username : {name}",
+    "@userName": {
+        "description" : "descr",
+        "placeholders" : {
+            "name" : {
+                "type" : "String"
+            }
+        }
+    },
+
+    "email" : "E-mail : {name}",
+    "@email": {
+        "description" : "descr",
+        "placeholders" : {
+            "name" : {
+                "type" : "String"
+            }
+        }
+    },
+
+    "infoPrj" : "Project",
+    "@infoPrj" : {
+        "description" : "descr"
+    },
+
+    "geoJson" : "GeoJSON downloaded to the download folder",
+    "@geoJson" : {
+        "description" : "descr"
+    },
+
+    "shareGeo" : "Share GeoJSON",
+    "@shareGeo" : {
+        "description" : "descr"
+    },
+
+    "idProject" : "Id Project",
+    "@idProject" :{
+        "description" : "descr"
+    },
+
+    "lastUpdate" : "Last Update",
+    "@lastUpdate" :{
+        "description" : "descr"
+    },
+
+    "sortName" : "Sort by name",
+    "@sortName" :{
+        "description" : "descr"
+    },
+
+    "sortDate" : "Sort by start date",
+    "@sortDate" :{
+        "description" : "descr"
+    },
+
+    "languagePage" : "Interface language",
+    "@languagePage" : {
+        "description" : "descr"
+    },
+
+    "languageSpecies" : "Species language",
+
+    "englLang" : "English",
+    "@englLang" : {
+        "description" : "descr"
+    },
+
+    "itLang" : "Italian",
+    "@itLang" : {
+        "description" : "descr"
+    },
+
+    "scientific" : "scientific",
+
+    "handPage" : "Hand page",
+    "@handPage" : {
+        "description" : "descr"
+    },
+
+    "rightHand" : "Right-handed",
+    "@rightHand" : {
+        "description" : "descr"
+    },
+
+    "leftHand" : "Left-handed",
+    "@leftHand" : {
+        "description" : "descr"
+    },
+
+
+    "register" : "Sign-in",
+    "@register" : {
+        "description" : "descr"
+    },
+
+    "joinAirtree" : "Join Airtree: Register Now!",
+    "@joinAirtree" : {
+        "description" : "descr"
+    },
+
+    "missingFirstName" : "Missin First Name",
+    "@missingFirstName" : {
+        "description" : "descr"
+    },
+
+    "firstNameRegister" : "First Name",
+    "@firstNameRegister" : {
+        "description" : "descr"
+    },
+
+    "missingLastName" : "Missing Last Name",
+    "@missingLastName" : {
+        "description" : "desc"
+    },
+
+    "lastNameRegister" : "Last Name",
+    "@lastNameRegister" : {
+        "description" : "descr"
+    },
+
+    "userNameRegister" : "Username",
+    "@userNameRegister" : {
+        "description" : "descr"
+    },
+
+    "missingEmail" : "Missing Email",
+    "@missingEmail" : {
+        "description" : "desc"
+    },
+
+    "missingPassword" : "Missing Password",
+    "@missingPassword" : {
+        "description" : "desc"
+    },
+
+    "passwordShort" : "Password is too short, minimum 8 characters",
+    "@passwordShort" : {
+        "description" : "desc"
+    },
+
+    "passwordPath" : "Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 number.",
+    "@passwordPath" : {
+        "description" : "desc"
+    },
+
+    "password" : "Password",
+    "@password" : {
+        "description" : "descr"
+    },
+
+    "registrationOk" : "Registration successfull!",
+    "@registrationOk" : {
+        "description" : "desc"
+    },
+
+    "registrationFailed" : "Unexpected error during the registration...",
+    "@registrationFailed" : {
+        "description" : "desc"
+    },
+
+    "missingUsername" : "Missing Username",
+    "@registrationFailed" : {
+        "description" : "desc"
+    },
+
+    "otherPage" : "Others",
+    "@otherPage" : {
+        "description" : "desc"
+    },
+
+    "signOnRight" : "Sign on clicking the Icon on top right!",
+    "@signOnRight" : {
+        "description" : "desc"
+    },
+
+    "aboutLink" : "About",
+    "@aboutLink" : {
+        "description" : "desce"
+    },
+
+    "helpLink" : "Help Page",
+    "@helpLink" : {
+        "description" : "descr"
+    },
+
+    "dominantHand" : "Dominant Hand Selection Page",
+    "@dominantHand" : {
+        "description" : "descr"
+    },
+
+    "languageLink" : "Language",
+    "@dominantHand" : {
+        "description" : "desc"
+    },
+
+    "databaseExportStatus" : "Database export status",
+    "@databaseExportStatus" : {
+        "description" : "descr"
+    },
+
+    "databaseFailed" : "Error",
+    "@databaseFailed" : {
+        "description" : "descr"
+    },
+
+    "databaseSucces" : "Export successful",
+    "@databaseSucces" : {
+        "description" : "desc"
+    },
+
+    "exportDataBase" : "Export Database",
+    "@exportDataBase" : {
+        "description" : "desc"
+    },
+
+    "importDataBase" : "Import Database",
+    "@importDataBase" : {
+        "description" : "desc"
+    },
+
+    "welcome" : "Welcome {name}!",
+    "@welcome": {
+        "description" : "descr",
+        "placeholders" : {
+            "name" : {
+                "type" : "String"
+            }
+        }
+    },
+
+    "enterText" : "Please enter some text",
+    "@enterText" : {
+        "description" : "desc"
+    },
+
+    "enterSpecies" : "Please select a species",
+    "@enterSpecies" : {
+        "description" : "desc"
+    },
+
+    "enterNumber" : "Please enter a number",
+    "@enterNumber" : {
+        "description" : "desc"
+    },
+
+    "markerSelected" : "no marker selected",
+    "@markerSelected" : {
+        "description" : "desc"
+    },
+
+    "longPress" : "longer press required to edit info",
+    "@longPress" : {
+        "description" : "desc"
+    },
+
+    "tree" : "New tree",
+    "@tree" : {
+        "description" : "desc"
+    },
+
+    "treeRow": "New Tree row",
+    "@treeRow" : {
+        "description" : "desc"
+    },
+
+    "projectError" : "Project Error",
+    "@projectError" : {
+        "description" : "desc"
+    },
+
+    "projectInitialized" : "Project Initialized",
+    "@projectInitialized" : {
+        "description" : "desc"
+    },
+
+    "elaborationData" : "Elaboration data",
+    "@elaborationData" : {
+        "description" : "desc"
+    },
+
+    "resultsReady" : "Results are ready",
+    "@resultsReady" : {
+        "description" : "desc"
+    },
+
+    "dataChange" : "Data have been changed",
+    "@dataChange" : {
+        "description" : "desc"
+    },
+
+    "unknow" : "Unknown Status",
+    "@unknow" : {
+        "description" : "desc"
+    },
+
+    "noData" : "there is no data in the Airtree map",
+    "@noData" : {
+        "description" : "desc"
+    },
+
+    "greyServer" : "\nThe project data will be sent to Airtree server for elaboration by pushing the 'get result' button\n\n.When the results are ready you will receive a notification",
+    "@greyServer" : {
+        "description" : "desc"
+    },
+
+    "orangeServer" : "\nThe project data has been changed\n",
+    "@orangeServer" : {
+        "description" : "desc"
+    },
+
+    "greenServer" : "\nThe project data is waiting to be processed by the Airtree server.\n\nWhen the results are ready you will receive a notification",
+    "@greenServer" : {
+        "description" : "desc"
+    },
+
+    "prj" : "Project",
+    "@prj" : {
+        "description" : "desc"
+    },
+
+    "changeMap" : "Change map",
+    "map" : "Map",
+    "@map" : {
+        "description" : "desc"
+    },
+
+    "result" : "Result",
+    "@result" : {
+        "description" : "desc"
+    },
+
+    "other" : "Other",
+    "@other" : {
+        "description" : "desc"
+    },
+
+    "urbanForest" : "New forest",
+    "@urbanForest" : {
+        "description": "desc"
+    },
+
+    "information" : "Information on vegetation",
+    "@information" : {
+        "description": "desc"
+    },
+
+    "changePosition" : "Reposition the vegetation",
+    "@changePosition" : {
+        "description" : "desc"
+    },
+
+    "delete" : "delete the vegetation",
+    "@delete" : {
+        "description" : "desc"
+    },
+
+    "existingGreen" : "This is existing vegetation",
+    "@existingGreen" : {
+        "description" : "desc"
+    },
+
+    "addNewSpecies" : "further portion of the forest",
+    "@addNewSpecies" : {
+        "description" : "desc"
+    },
+
+    "selectSpecies" : "Select species",
+    "@selectSpecies" : {
+        "description" : "desc"
+    },
+    "iconAlignment" : "Map icon alignment",
+    "left" : "left",
+    "right" : "right"
+}
