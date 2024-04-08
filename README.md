@@ -33,6 +33,12 @@ Join testing for the app development by CREA
     - download the [env file](https://filedn.com/lJmhEDy1NtXRoqpqwjGBwUB/airtree/app/env)
     - edit the env file according to the comments
     - rename the file from "env" to ".env" and copy it in the DIR root
+5) install the [envied](https://pub.dev/packages/envied) library
+```
+flutter pub add envied
+flutter pub add --dev envied_generator
+flutter pub add --dev build_runner
+```
 5) compile the env file
     - dart run build_runner build
 
