@@ -26,11 +26,11 @@ Airtree app is currently working for Android
 Join testing for the app development by CREA
 
 ## Requirements for app testing from source code
-1) set up the Flutter framework [https://docs.flutter.dev/get-started/install](flutter)\
+1) set up the Flutter framework [flutter](https://docs.flutter.dev/get-started/install)\
 2) clone the repository to a tour directory (DIR)\
 3) set up an airtree server\
 4) set up the app environment\
-- download the env file [https://filedn.com/lJmhEDy1NtXRoqpqwjGBwUB/airtree/app/env](env file)
+- download the env file [env file](https://filedn.com/lJmhEDy1NtXRoqpqwjGBwUB/airtree/app/env)
 - edit the env file according to the comments
 - rename the file from "env" to ".env" and copy it in the DIR root
 5) compile the env file\
