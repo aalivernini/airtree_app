@@ -1,4 +1,5 @@
 | <img src='assets_github/ic_airtree.png' height='100'> | Airtree app | <img src='assets_github/logo_crea.png' height='100'> |
+| ----------------------- | --------------------------- | ------------------------------- |
 
 
 Copyright (c) 2023 Council for Agricultural Research and Economics (CREA)\
