@@ -1,4 +1,4 @@
-# <img src='assets_github/ic_airtree.png' width='200'> Airtree app <img src='assets_github/logo_crea.png' width='200'>
+# <img src='assets_github/ic_airtree.png' height='150'> Airtree app <img src='assets_github/logo_crea.png' height='150'>
 
 Copyright (c) 2023 Council for Agricultural Research and Economics (CREA)\
 Fundings:  POR FESR Lazio 2014-2020 (POR), project TECNOVERDE, CUP B85F20003230006
