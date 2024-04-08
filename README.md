@@ -1,4 +1,4 @@
-# ![](assets_github/ic_airtree.png?raw=true){:height="100px" width="100px"}. Airtree app
+# <img src='assets_github/ic_airtree.png' width='50'> Airtree app
 
 Copyright (c) 2023 Council for Agricultural Research and Economics (CREA)
 Developed by: Alessandro Alivernini
