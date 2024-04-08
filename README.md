@@ -1,19 +1,6 @@
-<style>
-table {
-    border-collapse: collapse;
-}
-table, th, td {
-   border: none;
-}
-blockquote {
-    border-left: none;
-    padding-left: 10px;
-}
-</style>
 
-
-| <img src='assets_github/ic_airtree.png' height='100'> | Airtree app | <img src='assets_github/logo_crea.png' height='100'> |
-| ----------------------- | --------------------------- | ------------------------------- |
+ <img src='assets_github/ic_airtree.png' height='100'> | Airtree app | <img src='assets_github/logo_crea.png' height='100'>
+ ----------------------- | --------------------------- | -------------------------------
 
 
 Copyright (c) 2023 Council for Agricultural Research and Economics (CREA)\
