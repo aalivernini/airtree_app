@@ -1,6 +1,6 @@
 
 # Airtree (app)
-<img src='assets_github/ic_airtree.png' height='100' style="padding: 400px;"> <img src='assets_github/logo_crea.png' height='100'>
+<img src='assets_github/ic_airtree.png' height='100'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src='assets_github/logo_crea.png' height='100'>
 
 
 ---
