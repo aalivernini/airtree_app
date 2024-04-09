@@ -1480,8 +1480,8 @@ Widget getResultPage(BuildContext context) {
         break;
     }
     if (gProvider.project!.hasData == 1) {
-        // always show get result button
-        visibilityGetResult = true;
+        // DEV: always show get result button
+        // visibilityGetResult = true;
         if (visibilityStatus2.contains(gProvider.project!.status)) {
             visibilityGetResult = true;
         } else {
