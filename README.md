@@ -9,7 +9,7 @@ Copyright (c) 2023 Council for Agricultural Research and Economics (CREA)\
 Fundings:  POR FESR Lazio 2014-2020 (POR), project TECNOVERDE, CUP B85F20003230006
 
 
-<img src='assets_github/airtree_fig_1.png' width='200'>  <img src='assets_github/airtree_fig_2.jpg' width='200'> <img src='assets_github/airtree_fig_3.jpg' width='200'>  <img src='assets_github/airtree_fig_4.jpg' width='200'>
+<img src='assets_github/airtree_fig_1.png' width='200'>  <img src='assets_github/airtree_fig_2.png' width='200'> <img src='assets_github/airtree_fig_3.png' width='200'>  <img src='assets_github/airtree_fig_4.png' width='200'>
 
 
 ## Description
