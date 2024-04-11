@@ -26,13 +26,24 @@ Airtree app is currently being developed for Android.\
 Testing through Goole play in coming soon
 
 ## Install from source code
-1) set up the [Flutter framework](https://docs.flutter.dev/get-started/install)
-2) clone the repository to a your directory (DIR)
-3) set up an airtree server
+1) set up an [Airtree server](https://github.com/aalivernini/airtree_server_public)
+2) set up the [Flutter framework](https://docs.flutter.dev/get-started/install)
+3) clone the repository into a your directory (DIR)
 4) set up the app environment
-    - download the [env file](https://filedn.com/lJmhEDy1NtXRoqpqwjGBwUB/airtree/app/env)
-    - edit the env file according to the comments
-    - rename the file from "env" to ".env" and copy it in the DIR root
+- copy below text in your root DIR/.env
+
+```
+# GET YOUR OWN FREE BING_API KEY FROM:
+# https://www.microsoft.com/en-us/maps/bing-maps/choose-your-bing-maps-api
+# example: BING_KEY=asgfslfghlajsh1@$r24532
+BING_KEY=MY_BING_KEY
+# AIRTREE SERVER ADRESS. example: ADRESS_HOME=http://211.54.1.1:5000
+ADRESS_HOME=MY_SERVER_ADRESS:5000
+# YOUR CUSTOM AIRTREE KEY.
+# USE THE SAME KEY TO SET UP YOUR AIRTREE SERVER
+AIRTREE_KEY=7NEb35BAE.tMB0Nio0voyjXiTOwr0sGI
+```
+- edit the env file according to the comments
 5) install the [envied](https://pub.dev/packages/envied) library
 ```
 flutter pub add envied
