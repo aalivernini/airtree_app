@@ -481,31 +481,77 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
           const Padding(padding: EdgeInsets.only(bottom: 5))
         ]);
       }
-      //buttons.add(InkWell(
-      //        radius: 90,
-      //        onTap: () {
-      //            ScaffoldMessenger.of(context).showSnackBar(
-      //                SnackBar(content: Text(AppLocalizations.of(context)!.longPress)),
-      //            );
-      //        },
-      //        onLongPress: () async {
-      //            await Navigator.push(
-      //                context,
-      //                MaterialPageRoute(
-      //                    builder: (context) => inp.InfoDati(
-      //                        crowndiameter: AppLocalizations.of(context)!.helloWorld,
-      //                        diameter: "c",
-      //                        treeheight: "c",
-      //                        crownheight: "c",
-      //                        lai: "c",
-      //                    )),
-      //            );
-      //        },
-      //        child: Ink(
-      //                   child:
-      //                   const Icon(Icons.edit_document, size: 40.0, color: Colors.blue),
-      //               ),
-      //        ));
+      // DEV: edit data
+      buttons.add(InkWell(
+              radius: 90,
+              onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(AppLocalizations.of(context)!.longPress)),
+                  );
+              },
+              onLongPress: () async {
+                  final marker = mProvider.selectedMarker2[0];
+                  dat.Point? pnt;
+                  dat.Line? line;
+                  dat.PolygonData? polData;
+                  String idGeometry = marker.getId(); // this value is not correct for polygons. Fixed in switch below
+                  int maxAreaPercent = 100;
+                  List<LatLng> coords;
+                  double area = 0;  //unused
+
+                  switch (marker.type) {
+                      case en.EditorType.point:
+                          pnt = marker.infoPoint!.pnt;
+                          coords = [pnt.latlng];
+                          break;
+                      case en.EditorType.line:
+                          line = marker.infoLine!.line;
+                          coords = line.coords;
+                          break;
+                      case en.EditorType.polygon:
+                          var index = marker.infoPolygon!.indexElement;
+                          polData = marker.infoPolygon!.element2[index].polData;
+                          idGeometry = marker.infoPolygon!.id;
+                          var pol = mProvider.forest2.firstWhere((p) => p.polygonGeometry.id == idGeometry);
+                          coords = pol.polygonGeometry.coords;
+                          // TODO: compute maxAreaPercent iterating over all elements
+                          int forestAreaPerc = 0;
+                          for (var element in marker.infoPolygon!.element2) {
+                              forestAreaPerc += element.polData.percentArea;
+                          }
+                          maxAreaPercent = maxAreaPercent - forestAreaPerc;
+                          break;
+                  }
+                  await Navigator.pushNamed(
+                      context,
+                      '/greenForm',
+                      arguments: inp.GreenFormArgs(
+                          idGeometry:     idGeometry,
+                          idUser:         gProvider.idUser,
+                          idProject:      gProvider.idProject,
+                          type:           marker.type,
+                          coords:         coords,
+                          maxAreaPercent: maxAreaPercent,
+                          area:           area,
+                          pnt:            pnt,
+                          line:           line,
+                          polData:        polData,
+                          updateData:     true,
+                      ),
+                  ).then((green3) {
+                  if (green3 != null) {  // update data
+                      mProvider.initGeometries(context, gProvider.idProject).then((_){
+                          mProvider.selectedMarkerFromId(idGeometry);
+                      });
+                  }
+                  });
+                  // TODO update
+              },
+              child: Ink(
+                         child:
+                         const Icon(Icons.edit_document, size: 40.0, color: Colors.blue),
+                     ),
+              ));
       break;
     case en.Panel.resetGeometry:
       buttons.add(InkWell(

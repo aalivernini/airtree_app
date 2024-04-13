@@ -6,7 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'data.dart' as dat; 
+import 'data.dart' as dat;
 import 'providers.dart' as pr;
 import 'enums.dart' as en;
 import 'icon.dart' as ic;
@@ -50,14 +50,30 @@ class UniqueMarker extends fm.Marker { //ignore: must_be_immutable
         //fm.AnchorPos? anchorPos,
     });
 
+    UniqueMarker copy(){
+        return UniqueMarker(
+            //key: super.key,
+            type: type,
+            point: point,
+            id: id,
+            child: ic.Air.selected,
+            infoPoint: infoPoint,
+            infoLine: infoLine,
+            infoPolygon: infoPolygon,
+            width: width,
+            height: height,
+            rotate: rotate,
+        );
+    }
+
     db.Point getNewPoint(BuildContext context, LatLng pnt) {
-        // only points can be converted to data points 
+        // only points can be converted to data points
         assert(type == en.EditorType.point);
         assert(infoPoint != null);
         return db.Point(
             idProject      : infoPoint!.pnt.idProject,
             idUser         : infoPoint!.pnt.idUser,
-            lastUpdate     : DateTime.now().millisecondsSinceEpoch ~/ 1000,        
+            lastUpdate     : DateTime.now().millisecondsSinceEpoch ~/ 1000,
             id            : infoPoint!.pnt.id,
             idSpecies     : infoPoint!.pnt.idSpecies,
             diameter      : infoPoint!.pnt.diameter,
@@ -242,9 +258,6 @@ class UniqueMarker extends fm.Marker { //ignore: must_be_immutable
         eProvider.selectedId = id;
         switch(type){
             case en.EditorType.point:
-                //var marker = mProvider.marker2.firstWhere((p)=>p.id == id);
-                //mProvider.resetSelectedMarker2();
-                //eProvider.pointEditorAdd(marker.point);
                 pProvider.setPanel(en.Panel.addTree);
                 break;
             case en.EditorType.line:
@@ -288,7 +301,7 @@ class GeoLine extends fm.Polyline {
 // POLYGON
 // ----------------------------------------------------------------------------
 // Polygon data is implemented as one to many relationship with data.ForestInfo
-// id<GreenPolygon> ==> idGeometry<ForestInfo> 
+// id<GreenPolygon> ==> idGeometry<ForestInfo>
 class GeoPolygon extends fm.Polygon{
     final db.PolygonGeometry polygonGeometry;
 

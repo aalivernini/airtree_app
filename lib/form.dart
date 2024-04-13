@@ -63,6 +63,11 @@ class GreenFormArgs {
     final List<LatLng> coords;
     final int maxAreaPercent;
     final double area;
+    dat.Point?   pnt;
+    dat.Line?    line;
+    dat.PolygonData? polData;
+    bool? updateData; // if not null update tabular data
+
 
     GreenFormArgs(
         {
@@ -73,6 +78,10 @@ class GreenFormArgs {
         required this.coords,
         required this.maxAreaPercent,
         required this.area,
+        this.pnt,
+        this.line,
+        this.polData,
+        this.updateData,
         }
     );
 }
@@ -128,6 +137,7 @@ class GreenFormState extends State<GreenForm> {
         en.EditorType type = args.type;
         List<LatLng> coords = args.coords;
         final laiProvider = Provider.of<pr_lai.ProviderLai>(context, listen: false);
+        final pProvider = Provider.of<pr.ParamProvider>(context, listen: false);
 
         // Build a Form widget using the _formKey created above.
         // variables set in the form
@@ -137,6 +147,64 @@ class GreenFormState extends State<GreenForm> {
         double crownHeight = 0.0;
         double crownDiameter = 0.0;
         double lai = 0.0;
+        // only for tree rows
+        int treeNumber = 0;
+
+        // only for forests
+        int canopyCover = 0; // max 100
+        int percentArea = 0; // max 100 - sum(percentArea) of previous records for the same geometry
+        String idPolygonData = '';
+
+
+        if (args.updateData != null) {
+            print('updateData');
+            switch (type) {
+                case en.EditorType.point:
+                    var pnt = args.pnt;
+                    if (pnt != null) {
+                        print('update point');
+                        idSpecies = pnt.idSpecies;
+                        diameter = pnt.diameter;
+                        height = pnt.height;
+                        crownHeight = pnt.crownHeight;
+                        crownDiameter = pnt.crownDiameter;
+                        lai = pnt.lai;
+                        existingG = pnt.truth == 1;
+                    }
+                    break;
+                case en.EditorType.line:
+                    var line = args.line;
+                    if (line != null) {
+                        idSpecies = line.idSpecies;
+                        diameter = line.diameter;
+                        height = line.height;
+                        crownHeight = line.crownHeight;
+                        crownDiameter = line.crownDiameter;
+                        lai = line.lai;
+                        existingG = line.truth == 1;
+                        treeNumber = line.treeNumber;
+                    }
+                    break;
+                case en.EditorType.polygon:
+                    var polData = args.polData;
+                    if (polData != null) {
+                        idPolygonData = polData.id;
+                        idSpecies = polData.idSpecies;
+                        diameter = polData.diameter;
+                        height = polData.height;
+                        crownHeight = polData.crownHeight;
+                        crownDiameter = polData.crownDiameter;
+                        lai = polData.lai;
+                        existingG = polData.truth == 1;
+                        canopyCover = polData.percentCover;
+                        percentArea = polData.percentArea;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
 
         var truthSwitch =
                 TruthSwitch2(existingG: existingG, widgetText: AppLocalizations.of(context)!.existingGreen);
@@ -169,16 +237,13 @@ class GreenFormState extends State<GreenForm> {
                 ]
         );
 
-        // only for tree rows
-        int treeNumber = 0;
-
-        // only for forests
-        int canopyCover = 0; // max 100
-        int percentArea = 0; // max 100 - sum(percentArea) of previous records for the same geometry
-
         if (keepSpecies == true) {
             widget.typeAheadTextOnchange = lastSpecies;
         }
+        if (args.updateData != null) {
+            widget.typeAheadTextOnchange = pProvider.par3[idSpecies]!.name;
+        }
+
         final loc = AppLocalizations.of(context)!;
 
         // SPECIES
@@ -226,6 +291,11 @@ class GreenFormState extends State<GreenForm> {
         );
 
         // LAI FORM
+        // required for table update
+        if (lai != 0) {
+            laiProvider.laiValue = lai;
+        }
+
         final laiController = TextEditingController(
             text: laiProvider.laiValue == 0
             ? null
@@ -280,6 +350,9 @@ class GreenFormState extends State<GreenForm> {
             speciesForm,
             keepSpeciesWid,
             TextFormField(
+                initialValue: diameter != 0
+                ? diameter.toString()
+                : "",
                 inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                     NumericalRangeFormatter(
@@ -303,6 +376,9 @@ class GreenFormState extends State<GreenForm> {
                     diameter = int.parse(value!);
                 }),
             TextFormField(
+                initialValue: height != 0
+                ? height.toString()
+                : "",
                 inputFormatters: [
                     NumericalRangeFormatter(
                         min: 0.2, max: 100, type: en.NumberType.double)
@@ -335,6 +411,9 @@ class GreenFormState extends State<GreenForm> {
                     height = double.parse(value!);
                 }),
                 TextFormField(
+                    initialValue: crownHeight != 0
+                    ? crownHeight.toString()
+                    : "",
                     inputFormatters: [
                         NumericalRangeFormatter(
                             min: 0.1, max: onChangeHeight - 0.1, type: en.NumberType.double)
@@ -361,6 +440,9 @@ class GreenFormState extends State<GreenForm> {
                     },
                     ),
                     TextFormField(
+                        initialValue: crownDiameter != 0
+                        ? crownDiameter.toString()
+                        : "",
                         inputFormatters: [
                             NumericalRangeFormatter(
                                 min: 0.1, max: 100, type: en.NumberType.double)
@@ -382,31 +464,11 @@ class GreenFormState extends State<GreenForm> {
                             crownDiameter = double.parse(value!);
                         }),
                     laiForm,
-                    //TextFormField(
-            //    inputFormatters: [
-            //        NumericalRangeFormatter(min: 0, max: 10, type: en.NumberType.double)
-            //    ],
-            //    decoration: InputDecoration(
-            //        labelText: AppLocalizations.of(context)!.lai,
-            //        suffixIcon: Tooltip(
-            //            preferBelow: false,
-            //            verticalOffset: -15,
-            //            margin: EdgeInsets.fromLTRB(80, 0, 30, 0),
-            //            message: "Leaf Area Index",
-            //            child: IconButton(
-            //                icon: Icon(Icons.info),
-            //                onPressed: () {},
-            //            ),
-            //        )),
-            //    keyboardType: TextInputType.number,
-            //    validator: validateNumber,
-            //    onSaved: (String? value) {
-            //        lai = double.parse(value!);
-            //    }),
         ];
 
         if (type == en.EditorType.line) {
       form2.add(TextFormField(
+              initialValue: treeNumber != 0 ? treeNumber.toString() : "",
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             NumericalRangeFormatter(
@@ -430,6 +492,7 @@ class GreenFormState extends State<GreenForm> {
           }));
     } else if (type == en.EditorType.polygon) {
       form2.add(TextFormField(
+              initialValue: canopyCover != 0 ? canopyCover.toString() : "",
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             NumericalRangeFormatter(
@@ -452,6 +515,7 @@ class GreenFormState extends State<GreenForm> {
             canopyCover = int.parse(value!);
           }));
       form2.add(TextFormField(
+              initialValue: percentArea != 0 ? percentArea.toString() : "",
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             NumericalRangeFormatter(
@@ -508,6 +572,7 @@ class GreenFormState extends State<GreenForm> {
                                                     _formKey.currentState!.save();
                                                     switch (type) {
                                                         case en.EditorType.point:
+                                                            print('update point');
                                                             var tree = db.Point(
                                                                 id: idGeometry,
                                                                 idProject: idProject,
@@ -523,6 +588,9 @@ class GreenFormState extends State<GreenForm> {
                                                                 latlng: LatLng(coords[0].latitude,
                                                                     coords[0].longitude),
                                                             );
+                                                            if (args.updateData != null) {
+                                                                tree.dbTableUpdate();
+                                                            }
                                                             Navigator.pop(context, tree);
                                                             break;
                                                         case en.EditorType.line:
@@ -541,11 +609,20 @@ class GreenFormState extends State<GreenForm> {
                                                                 treeNumber: treeNumber,
                                                                 coords: coords,
                                                             );
+                                                            if (args.updateData != null) {
+                                                                row.dbTableUpdate();
+                                                                print('update row');
 
+                                                            }
                                                             Navigator.pop(context, row);
                                                             break;
                                                         case en.EditorType.polygon:
-                                                            var id = ObjectId().hexString;
+                                                            String id;
+                                                            if (args.updateData != null) {
+                                                                id = idPolygonData;
+                                                            } else {
+                                                                id = ObjectId().hexString;
+                                                            }
 
                                                             var forestSpecies1 = db.PolygonData(
                                                                 id: id,
@@ -573,6 +650,10 @@ class GreenFormState extends State<GreenForm> {
                                                                 'nextMaxAreaPercent': nextMaxAreaPercent,
                                                                 'nextInput': addNext.truth,
                                                             };
+                                                            if (args.updateData != null) {
+                                                                print('update polygon');
+                                                                forestSpecies1.dbTableUpdate();
+                                                            }
 
                                                             Navigator.pop(context, out);
                                                             break;

@@ -779,6 +779,18 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  void selectedMarkerFromId(String id) {
+      var tmp = marker2.where((element) => element.id == id).toList();
+      if (tmp.isEmpty) {
+          //tmp = marker2.where((element) => element.infoPolygon!.id == id).toList();
+          print('selectedMarker2 empty');
+          return;
+      }
+      print('selectedMarker2 length: ${tmp.length}');
+      selectedMarker2 = [tmp[0].copy()];
+  }
+
   void popSelectedMarker() {
     selectedMarker2 = <geo.UniqueMarker>[];
     notifyListeners();
@@ -789,7 +801,7 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void initGeometries(BuildContext context, String idProject) async {
+  Future<void> initGeometries(BuildContext context, String idProject) async {
     // clear geometries
     selectedMarker2.clear();
     marker2.clear();
@@ -849,6 +861,7 @@ class MapProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+    return;
   }
 }
 

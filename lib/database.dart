@@ -607,6 +607,27 @@ class Project with Base {
         return cnt;
     }
 
+    static Future<void> shareProject(String idProject) async {
+        final pt2 = await DatabaseManager.getPoint2(idProject);
+        final line2 = await DatabaseManager.getLine2(idProject);
+        final pol2 = await DatabaseManager.getPolygonGeometry2(idProject);
+        final polData2 = await DatabaseManager.getPolygonData3(idProject);
+
+        final ptJson = pt2.map((e) => e.toJson()).toList();
+        final lineJson = line2.map((e) => e.toJson()).toList();
+        final polJson = pol2.map((e) => e.toJson()).toList();
+
+        final projectData = {
+            'project': project,
+            'points': points,
+            'lines': lines,
+            'polygonGeometries': polygonGeometries,
+            'polygonData': polygonData,
+            'result': result,
+        };
+
+    }
+
     static Future<List<Map<String, dynamic>>> getResult2(String idProject) async {
         final db = await Base.getConnection();
         final List<Map<String, dynamic>> maps = await db
@@ -801,6 +822,27 @@ class Point extends dat.Point with Base {
         return cnt;
     }
 
+    Future<int> dbTableUpdate() async {
+        final db = await connect();
+        int cnt = await db.update(
+            'points',
+        {
+            'last_update': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+            'id_species': idSpecies,
+            'diameter': diameter,
+            'height': height,
+            'crown_height': crownHeight,
+            'crown_diameter': crownDiameter,
+            'lai': lai,
+            'truth': truth,
+        },
+            where: 'id = ?',
+            whereArgs: [id],
+        );
+        await Project.setUpdate(idProject);
+        return cnt;
+    }
+
     String toJson() {
         return jsonEncode({
             'id': id,
@@ -900,6 +942,28 @@ class Line extends dat.Line with Base {
             'truth': truth,
             'tree_number': treeNumber,
             'length': length,
+        },
+            where: 'id = ?',
+            whereArgs: [id],
+        );
+        await Project.setUpdate(idProject);
+        return cnt;
+    }
+
+    Future<int> dbTableUpdate() async {
+        final db = await connect();
+        int cnt = await db.update(
+            'line',
+        {
+            'last_update': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+            'id_species': idSpecies,
+            'diameter': diameter,
+            'height': height,
+            'crown_height': crownHeight,
+            'crown_diameter': crownDiameter,
+            'lai': lai,
+            'truth': truth,
+            'tree_number': treeNumber,
         },
             where: 'id = ?',
             whereArgs: [id],
@@ -1132,6 +1196,31 @@ class PolygonData extends dat.PolygonData with Base {
         await Project.setUpdate(idProject);
         return cnt;
     }
+
+    Future<int> dbTableUpdate() async {
+        final db = await connect();
+        int cnt = await db.update(
+            'polygon_data',
+        {
+            'last_update': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+            'id_species': idSpecies,
+            'diameter': diameter,
+            'height': height,
+            'crown_height': crownHeight,
+            'crown_diameter': crownDiameter,
+            'lai': lai,
+            'truth': truth,
+            'percent_area': percentArea,
+            'percent_cover': percentCover,
+        },
+            where: 'id = ?',
+            whereArgs: [id],
+        );
+        await Project.setUpdate(idProject);
+        return cnt;
+    }
+
+
 
     String toJson() {
         return jsonEncode({
