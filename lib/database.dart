@@ -11,6 +11,9 @@ import 'dart:typed_data';
 import 'dart:io';
 import 'package:share_plus/share_plus.dart';
 import 'export_import_database.dart' as ex;
+import 'package:geojson_vi/geojson_vi.dart' as geoj;
+//import 'package:collection/collection.dart';
+import 'package:archive/archive_io.dart';
 
 
 import 'io.dart' as io;
@@ -607,25 +610,59 @@ class Project with Base {
         return cnt;
     }
 
-    static Future<void> shareProject(String idProject) async {
+    static Future<void> shareProject(String idProject, Map<int, dat.ParamRow> mapIntSpecies) async {
+        final pathJson2 = <String>[];
+
+        // GET RESULT
+        final res3 = await getResult3(idProject);
+
+        // GET TREES
         final pt2 = await DatabaseManager.getPoint2(idProject);
-        final line2 = await DatabaseManager.getLine2(idProject);
-        final pol2 = await DatabaseManager.getPolygonGeometry2(idProject);
-        final polData2 = await DatabaseManager.getPolygonData3(idProject);
+        final jsonPt2 = pt2.map((e) => e.toGeoJson(mapIntSpecies, res3)).toList();
+        final ptCollection = geoj.GeoJSONFeatureCollection([]);
+        ptCollection.features.addAll(jsonPt2);
+        String jsonDump = ptCollection.toJSON();
+        String path = await ex.getTemporaryPath("tree.geojson");
+        await File(path)
+                .writeAsString(jsonDump);
+        pathJson2.add(path);
 
-        final ptJson = pt2.map((e) => e.toJson()).toList();
-        final lineJson = line2.map((e) => e.toJson()).toList();
-        final polJson = pol2.map((e) => e.toJson()).toList();
+        // GET TREE ROWS
+        final ln2 = await DatabaseManager.getLine2(idProject);
+        final jsonLn2 = ln2.map((e) => e.toGeoJson(mapIntSpecies, res3)).toList();
+        final lnCollection = geoj.GeoJSONFeatureCollection([]);
+        lnCollection.features.addAll(jsonLn2);
+        jsonDump = lnCollection.toJSON();
+        path = await ex.getTemporaryPath("tree_row.geojson");
+        await File(path)
+                .writeAsString(jsonDump);
+        pathJson2.add(path);
 
-        final projectData = {
-            'project': project,
-            'points': points,
-            'lines': lines,
-            'polygonGeometries': polygonGeometries,
-            'polygonData': polygonData,
-            'result': result,
-        };
+        // GET FOREST
+        // get polygon data
+        final polData3 = await DatabaseManager.getPolygonData3(idProject);
+        // get polygon geometry
+        final polGeometry3 = await DatabaseManager.getPolygonGeometry2(idProject);
+        final jsonPol2 = polGeometry3.map((e) => e.toGeoJson(mapIntSpecies, polData3, res3)).toList();
+        final polCollection = geoj.GeoJSONFeatureCollection([]);
+        polCollection.features.addAll(jsonPol2);
+        jsonDump = polCollection.toJSON();
+        path = await ex.getTemporaryPath("forest.geojson");
+        await File(path)
+                .writeAsString(jsonDump);
+        pathJson2.add(path);
 
+        // GET TOTALS CSV [TODO]
+
+        // CREATE ZIP & SHARE
+        String pathZip = await ex.getTemporaryPath("airtree.zip");
+        var encoder =  ZipFileEncoder();
+        encoder.create(pathZip);
+        for (var path in pathJson2) {
+            await encoder.addFile(File(path));
+        }
+        encoder.close();
+        Base.shareFile(pathZip, 'airtree.zip');
     }
 
     static Future<List<Map<String, dynamic>>> getResult2(String idProject) async {
@@ -633,6 +670,18 @@ class Project with Base {
         final List<Map<String, dynamic>> maps = await db
         .rawQuery('SELECT * FROM result WHERE id_project=?', [idProject]);
         return maps;
+    }
+
+    static Future<Map<String, Map<String, dynamic>>> getResult3(String idProject) async {
+        final db = await Base.getConnection();
+        final List<Map<String, dynamic>> maps = await db
+        .rawQuery('SELECT * FROM result WHERE id_project=?', [idProject]);
+        Map<String, Map<String, dynamic>> dict = {};
+        for (var element in maps) {
+            dict[element['id']] = element;
+        }
+        print(dict.keys.toList());
+        return dict;
     }
 
     static Future<int> setUpdate(String idProject) async {
@@ -860,6 +909,37 @@ class Point extends dat.Point with Base {
             'truth': truth,
         });
     }
+
+    geoj.GeoJSONFeature toGeoJson(Map<int, dat.ParamRow> mapIntSpecies, Map<String, dynamic> result3) {
+        // print("id: $id");
+        final r1 = result3[id];
+        // print("r1: $r1");
+        return geoj.GeoJSONFeature(
+            geoj.GeoJSONPoint([latlng.longitude, latlng.latitude]),
+            properties : {
+                'id':             id,
+                'id_project':     idProject,
+                'id_user':        idUser,
+                'last_update':    lastUpdate,
+                'id_species':     idSpecies,
+                'species_name':   mapIntSpecies[idSpecies]!.name,
+                'diameter':       diameter,
+                'height':         height,
+                'crown_height':   crownHeight,
+                'crown_diameter': crownDiameter,
+                'lai':            lai,
+                'truth':          truth,
+                'canopy_area':    r1['canopy_area'],
+                'npp':            r1['npp'],
+                'o3':             r1['o3'],
+                'pm1':            r1['pm1'],
+                'pm2_5':          r1['pm2_5'],
+                'pm10':           r1['pm10'],
+                'no2':            r1['no2'],
+                'so2':            r1['so2'],
+                'co':             r1['co'],
+            });
+    }
 }
 
 class Line extends dat.Line with Base {
@@ -1014,6 +1094,38 @@ class Line extends dat.Line with Base {
             'length': length,
         });
     }
+
+    geoj.GeoJSONFeature toGeoJson(Map<int, dat.ParamRow> mapIntSpecies, Map<String, dynamic> result3) {
+        final coords2 = coords.map((e) => [e.longitude, e.latitude]).toList();
+        final r1 = result3[id];
+
+        return geoj.GeoJSONFeature(
+            geoj.GeoJSONLineString(coords2),
+            properties : {
+                'id': id,
+                'id_project': idProject,
+                'id_user': idUser,
+                'last_update': lastUpdate,
+                'id_species': idSpecies,
+                'species_name': mapIntSpecies[idSpecies]!.name,
+                'diameter': diameter,
+                'height': height,
+                'crown_height': crownHeight,
+                'crown_diameter': crownDiameter,
+                'lai': lai,
+                'truth': truth,
+                'tree_number': treeNumber,
+                'length': length,
+                'npp' : r1['npp'],
+                'o3': r1['o3'],
+                'pm1': r1['pm1'],
+                'pm2_5': r1['pm2_5'],
+                'pm10': r1['pm10'],
+                'no2': r1['no2'],
+                'so2': r1['so2'],
+                'co': r1['co'],
+            });
+    }
 }
 
 class PolygonGeometry extends dat.PolygonGeometry with Base {
@@ -1111,6 +1223,60 @@ class PolygonGeometry extends dat.PolygonGeometry with Base {
             'truth': truth,
         });
     }
+
+    geoj.GeoJSONFeature toGeoJson(
+        Map<int, dat.ParamRow> mapIntSpecies,
+        Map<String, List<PolygonData>> data3,
+        Map<String, Map<String, dynamic>> result3
+    ) {
+        final coords2 = coords.map((e) => [e.longitude, e.latitude]).toList();
+        coords2.add(coords2[0]);
+        final data2 = data3[id] ?? [];
+
+        final Map<String, dynamic>mapOut = {
+            'id': id,
+            'id_project': idProject,
+            'id_user': idUser,
+            'last_update': DateTime.now().millisecondsSinceEpoch ~/ 1000,
+            'truth': truth,
+            'area': area,
+        };
+
+        int index = 0;
+        for (var element in data2) {
+            final r1 = result3[element.id];
+            if (r1 == null) {
+                continue;
+            }
+            index++;
+            final map1 = {
+                'z$index.id_species':     element.idSpecies,
+                'z$index.species_name':   mapIntSpecies[element.idSpecies]!.name,
+                'z$index.diameter':       element.diameter,
+                'z$index.height':         element.height,
+                'z$index.crown_height':   element.crownHeight,
+                'z$index.crown_diameter': element.crownDiameter,
+                'z$index.lai':            element.lai,
+                'z$index.percent_area':   element.percentArea,
+                'z$index.percent_cover':  element.percentCover,
+                'z$index.npp':            r1['npp'],
+                'z$index.o3':             r1['o3'],
+                'z$index.pm1':            r1['pm1'],
+                'z$index.pm2_5':          r1['pm2_5'],
+                'z$index.pm10':           r1['pm10'],
+                'z$index.no2':            r1['no2'],
+                'z$index.so2':            r1['so2'],
+                'z$index.co':             r1['co'],
+            };
+            mapOut.addAll(map1);
+        }
+
+        return geoj.GeoJSONFeature(
+            geoj.GeoJSONPolygon([coords2]),
+            properties : mapOut,
+        );
+    }
+
 }
 
 class PolygonData extends dat.PolygonData with Base {

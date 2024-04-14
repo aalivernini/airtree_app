@@ -138,6 +138,7 @@ class GreenFormState extends State<GreenForm> {
         List<LatLng> coords = args.coords;
         final laiProvider = Provider.of<pr_lai.ProviderLai>(context, listen: false);
         final pProvider = Provider.of<pr.ParamProvider>(context, listen: false);
+        final gProvider = Provider.of<pr.GlobalProvider>(context, listen: false);
 
         // Build a Form widget using the _formKey created above.
         // variables set in the form
@@ -157,12 +158,10 @@ class GreenFormState extends State<GreenForm> {
 
 
         if (args.updateData != null) {
-            print('updateData');
             switch (type) {
                 case en.EditorType.point:
                     var pnt = args.pnt;
                     if (pnt != null) {
-                        print('update point');
                         idSpecies = pnt.idSpecies;
                         diameter = pnt.diameter;
                         height = pnt.height;
@@ -570,6 +569,11 @@ class GreenFormState extends State<GreenForm> {
                                                 if (_formKey.currentState!.validate()) {
                                                     existingG = truthSwitch.existingG;
                                                     _formKey.currentState!.save();
+                                                    if (args.updateData != null) {
+                                                        db.Project.setStatus(idProject, 3);
+                                                        gProvider.getProjects();
+                                                        gProvider.project!.status = 3;
+                                                    }
                                                     switch (type) {
                                                         case en.EditorType.point:
                                                             print('update point');
@@ -1127,126 +1131,5 @@ class NumericalRangeFormatter extends TextInputFormatter {
 }
 
 
-ListTile buildListTile(String label, String value) {
-    return ListTile(
-        title: Text(
-            label,
-            style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Container(
-            decoration: BoxDecoration(
-                color: Colors.grey[200], // Colore dello sfondo
-                borderRadius: BorderRadius.circular(8.0), // Bordo arrotondato
-            ),
-            child: TextFormField(
-                initialValue: value,
-                readOnly: false, // Impedisce la modifica diretta del campo di testo
-                decoration: InputDecoration(
-                    hintText: 'Enter $label',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(10.0), // Spaziatura interna
-                ),
-            ),
-        ),
-    );
-}
-
-// form modifica dati
-class InfoDati extends StatefulWidget {
-    InfoDati({
-        Key? key,
-        required this.diameter,
-        required this.treeheight,
-        required this.crownheight,
-        required this.crowndiameter,
-        required this.lai,
-    }) : super(key: key);
-
-    final String diameter;
-    final String treeheight;
-    final String crownheight;
-    final String crowndiameter;
-    final String lai;
-
-    @override
-    _InfoDatiState createState() => _InfoDatiState();
-}
-
-class _InfoDatiState extends State<InfoDati> {
-    // Aggiungi altri controller per gli altri campi...
-
-    @override
-    void initState() {
-        super.initState();
-    }
-
-    @override
-    Widget build(BuildContext context) {
-        final gProvider = Provider.of<pr.GlobalProvider>(context, listen: false);
-
-        return Scaffold(
-            appBar: AppBar(
-                title: const Row(
-                    children: [
-                        Text('Dati Info'),
-                    ],
-                ),
-            ),
-            body: SingleChildScrollView(
-                child: Center(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                            Text(widget.diameter as String),
-                            Text(widget.treeheight as String),
-                            Text(widget.crownheight as String),
-                            Text(widget.crowndiameter as String),
-                            Text(widget.lai as String),
-                            SizedBox(height: 20),
-                            Container(
-                                margin: EdgeInsets.fromLTRB(20, 0, 20, 40),
-                                child: ElevatedButton(
-                                    onPressed: () async {
-                                        //print(widget.endDate);
-
-                                        setState(() {
-                                            gProvider.getProjects();
-                                        });
-                                        Navigator.pop(context);
-                                    },
-                                    child: Text("Submit"),
-                                ),
-                            ),
-                        ],
-                    ),
-                ),
-            ),
-        );
-    }
-}
-
-ListTile buildListTile2(String label, String value) {
-    return ListTile(
-        title: Text(
-            label,
-            style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Container(
-            decoration: BoxDecoration(
-                color: Colors.grey[200], // Colore dello sfondo
-                borderRadius: BorderRadius.circular(8.0), // Bordo arrotondato
-            ),
-            child: TextFormField(
-                initialValue: value,
-                readOnly: false, // Impedisce la modifica diretta del campo di testo
-                decoration: InputDecoration(
-                    hintText: 'Enter $label',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(10.0), // Spaziatura interna
-                ),
-            ),
-        ),
-    );
-}
 
 

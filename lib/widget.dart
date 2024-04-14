@@ -1495,29 +1495,34 @@ Widget getResultPage(BuildContext context) {
 
   var appBarColor = Colors.blue;
   var msg = '';
-  var visibleMsg = false;
-
+  var visibleMsg = true;
+  visibilityGetResult = true;
+  visibilityInfoResult = false;
   if (gProvider.project != null) {
     // a project has been selected
     // msg
     if (gProvider.project!.hasData == 0) {
       msg = AppLocalizations.of(context)!.noData;
-      visibleMsg = true;
     }
-    visibleMsg = gProvider.project!.hasData == 0;
     switch (gProvider.project!.status) {
       case 0:
         appBarColor = Colors.grey;
         msg = AppLocalizations.of(context)!.greyServer;
-        visibleMsg = true;
+        visibilityGetResult = false;
+        if (gProvider.project!.hasData == 1) {
+            visibilityGetResult = true;
+        }
         break;
       case 1:
         appBarColor = Colors.green;
         msg = AppLocalizations.of(context)!.greenServer;
-        visibleMsg = true;
+        visibilityGetResult = false;
         break;
       case 2:
         appBarColor = Colors.blue;
+        visibleMsg = false;
+        visibilityGetResult = false;
+        visibilityInfoResult = true;
         break;
       case 3:
         appBarColor = Colors.orange;
@@ -1525,15 +1530,15 @@ Widget getResultPage(BuildContext context) {
         visibleMsg = true;
         break;
     }
-    if (gProvider.project!.hasData == 1) {
-        // DEV: always show get result button
-        // visibilityGetResult = true;
-        if (visibilityStatus2.contains(gProvider.project!.status)) {
-            visibilityGetResult = true;
-        } else {
-            visibilityInfoResult = true;
-        }
-    }
+    // if (gProvider.project!.hasData == 1) {
+    //     // DEV: always show get result button
+    //     // visibilityGetResult = true;
+    //     if (visibilityStatus2.contains(gProvider.project!.status)) {
+    //         visibilityGetResult = false;
+    //     } else {
+    //         visibilityInfoResult = true;
+    //     }
+    // }
   }
 
   final buttonGetResult = Visibility(
@@ -1610,12 +1615,25 @@ Widget getResultPage(BuildContext context) {
           ),
       ),
       );
+  final actions = <Widget>[infoResult, buttonGetResult];
+  if (visibilityInfoResult){
+      final shareButton = InkWell(
+          onTap: () {
+              db.Project.shareProject(gProvider.project!.idProject, parProvider.par3);
+
+          },
+          onLongPress: () {
+          },
+          child: Icon(MdiIcons.share, size: 30.0, color: Colors.black),
+      );
+      actions.add(shareButton);
+  }
 
 
   return Scaffold(
       appBar: AppBar(
         title: Text(gProvider.projectName),
-        actions: <Widget>[infoResult, buttonGetResult],
+        actions: actions,
         backgroundColor: appBarColor,
       ),
       body: Container(
@@ -1630,7 +1648,7 @@ Widget getResultPage(BuildContext context) {
             ),
           ),
           Visibility(
-            visible: rProvider.ready,
+            visible: visibilityInfoResult,
             child: Column(
               children: <Widget>[
                 Padding(

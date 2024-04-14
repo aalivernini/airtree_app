@@ -75,6 +75,7 @@ dependencies:
   image: ^4.1.7
   camera: ^0.10.5+9
   sensors_plus: ^4.0.2
+  geojson_vi: ^2.2.3
 
 dev_dependencies:
   build_runner: ^2.4.6

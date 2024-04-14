@@ -469,6 +469,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.0"
+  geojson_vi:
+    dependency: "direct main"
+    description:
+      name: geojson_vi
+      sha256: ffba1991df4d3f98cfd7fee02bcde00b76a39d4daa838ba8a0ba8b83cbff0705
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.3"
   geolocator:
     dependency: "direct main"
     description:

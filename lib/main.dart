@@ -146,7 +146,8 @@ class NavigationPageState extends State<NavigationPage> {
 
     @override
     Widget build(BuildContext context) {
-        //print(addressHome);
+        // SERVER ADDRESS
+        //print("server: $addressHome");
 
         return FutureBuilder<bool>(
             future: checkPrivacyAccepted(context),
