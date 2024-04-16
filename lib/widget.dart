@@ -33,6 +33,10 @@ import 'package:http/http.dart' as http;
 import 'widget_other.dart' as oth;
 
 
+
+
+
+
 const bool isMobile = true;
 
 Future<int> downloadResults(BuildContext context) async {
@@ -478,7 +482,6 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
               // TODO: show results for selected marker
             },
           ),
-          const Padding(padding: EdgeInsets.only(bottom: 5))
         ]);
       }
       buttons.add(InkWell(
@@ -642,8 +645,6 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
     }
 
     buttons.addAll([
-        const Padding(padding: EdgeInsets.only(bottom: 5)),
-        const Padding(padding: EdgeInsets.only(bottom: 5)),
         // ADD FOREST ZONE
         InkWell(
             onLongPress: () {
@@ -686,7 +687,6 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
                 : Colors.grey
             ),
         ),
-        const Padding(padding: EdgeInsets.only(bottom: 5)),
         // DELETE FOREST ZONE
         InkWell(
             onLongPress: () {
@@ -698,6 +698,10 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
                     element.polData.dbDelete().then((_){
                         mProvider.selectedMarker2[0].infoPolygon!.indexElement = 0;
                         mProvider.initForest(context, gProvider.idProject);
+
+                        gProvider.project!.status = 3;
+                        db.Project.setStatus(gProvider.idProject, 3);
+                        gProvider.getProjects();
                         pProvider.notifyListeners();
                     });
                 } else {
@@ -717,6 +721,10 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
   }
   double initial = 0;
   double distance = 0;
+  if (buttons.length < 3) {
+    buttons.add(const SizedBox(height: 40.0));
+    buttons.add(const SizedBox(height: 40.0));
+  }
   return Row(children: [
     Expanded(
       flex: 85,
@@ -742,19 +750,17 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
                       if (distance > 75) {
                           if (indexElement == elements) {
                               mProvider.selectedMarker2[0].infoPolygon!.indexElement = 0;
-                              pProvider.notifyListeners();
                           } else {
                               mProvider.selectedMarker2[0].infoPolygon!.indexElement++;
-                              pProvider.notifyListeners();
                           }
+                          pProvider.notifyListeners();
                       } else if (distance < -75) {
                           if (indexElement == 0) {
                               mProvider.selectedMarker2[0].infoPolygon!.indexElement = elements;
-                              pProvider.notifyListeners();
                           } else {
                               mProvider.selectedMarker2[0].infoPolygon!.indexElement--;
-                              pProvider.notifyListeners();
                           }
+                          pProvider.notifyListeners();
                       }
                   }
               },
@@ -770,7 +776,10 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
       )
       : Text(AppLocalizations.of(context)!.markerSelected),
       ),
-      Expanded(flex: 15, child: Column(children: buttons))
+      Expanded(flex: 15, child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: buttons
+      ))
   ]);
 }
 
@@ -1576,15 +1585,14 @@ Widget getResultPage(BuildContext context) {
         rows = result.getTableRows(parProvider.par3, locale);
     }
 
-  var visibilityGetResult = false;
-  var visibilityInfoResult = false;
   List<int> visibilityStatus2 = [-1, 0, 3];
 
   var appBarColor = Colors.blue;
   var msg = '';
   var visibleMsg = true;
-  visibilityGetResult = true;
-  visibilityInfoResult = false;
+  var visibilityGetResult = true;
+  var visibilityInfoResult = false;
+  var visibilityWaitResult = false;
   if (gProvider.project != null) {
     // a project has been selected
     // msg
@@ -1604,6 +1612,7 @@ Widget getResultPage(BuildContext context) {
         appBarColor = Colors.green;
         msg = AppLocalizations.of(context)!.greenServer;
         visibilityGetResult = false;
+        visibilityWaitResult = true;
         break;
       case 2:
         appBarColor = Colors.blue;
@@ -1617,15 +1626,6 @@ Widget getResultPage(BuildContext context) {
         visibleMsg = true;
         break;
     }
-    // if (gProvider.project!.hasData == 1) {
-    //     // DEV: always show get result button
-    //     // visibilityGetResult = true;
-    //     if (visibilityStatus2.contains(gProvider.project!.status)) {
-    //         visibilityGetResult = false;
-    //     } else {
-    //         visibilityInfoResult = true;
-    //     }
-    // }
   }
 
   final buttonGetResult = Visibility(
@@ -1702,18 +1702,61 @@ Widget getResultPage(BuildContext context) {
           ),
       ),
       );
+
+
+  final shareDialog = AlertDialog(
+      content:
+      Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+              ElevatedButton.icon(
+                  onPressed: (
+                  ) {
+                      db.Project.shareProject(gProvider.project!.idProject, parProvider.par3);
+                  },
+                  icon: Icon( // <-- Icon
+                      Icons.share,
+                      size: 24.0,
+                  ),
+                  label: Text('Share GeoJson (GIS)'), // <-- Text
+              )
+          ]
+      ),
+      actions: [
+          TextButton(
+              onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                  //Navigator.of(context).pop();
+              },
+              child: Text(
+                         AppLocalizations.of(context)!.close,
+                         style: TextStyle(color: Colors.blue),
+                     )
+          )
+      ]
+  );
+
+
+
   final actions = <Widget>[infoResult, buttonGetResult];
   if (visibilityInfoResult){
       final shareButton = InkWell(
+          radius : 30.0,
           onTap: () {
-              db.Project.shareProject(gProvider.project!.idProject, parProvider.par3);
-
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                      return shareDialog;
+                  },
+              );
+              //db.Project.shareProject(gProvider.project!.idProject, parProvider.par3);
           },
           onLongPress: () {
           },
-          child: Icon(MdiIcons.share, size: 30.0, color: Colors.black),
+          child: Icon(Icons.more_vert, size: 30.0, color: Colors.black),
       );
       actions.add(shareButton);
+      actions.add(const SizedBox(width: 10));
   }
 
 
@@ -1733,6 +1776,21 @@ Widget getResultPage(BuildContext context) {
                 padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8),
                 child: Text(msg),
             ),
+          ),
+          Visibility(
+            visible: visibilityWaitResult,
+            child: Center(
+                child: Padding(
+                    padding: const EdgeInsets.all(50.0),
+                    child: SizedBox(
+                        height: 100,
+                        width: 100,
+                        child: CircularProgressIndicator(
+                            color: Colors.blue,
+                        )
+                    )
+                )
+            )
           ),
           Visibility(
             visible: visibilityInfoResult,

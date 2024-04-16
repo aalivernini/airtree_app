@@ -574,7 +574,7 @@ class GreenFormState extends State<GreenForm> {
                                                 if (_formKey.currentState!.validate()) {
                                                     existingG = truthSwitch.existingG;
                                                     _formKey.currentState!.save();
-                                                    if (args.updateData != null) {
+                                                    if (args.updateData != null || args.addPolygonData != null) {
                                                         db.Project.setStatus(idProject, 3);
                                                         gProvider.getProjects();
                                                         gProvider.project!.status = 3;

@@ -508,7 +508,7 @@ class PanelProvider extends ChangeNotifier {
   // panel management
   bool showPanel = false;
   int heightMap = 80; // 8
-  int heightPanel = 20;
+  int heightPanel = 10;
 
   bool switchInfo = false; // false: show user input; true: show result
 
