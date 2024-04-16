@@ -1,4 +1,6 @@
 {
+    "forestAreaFull": "Il totale delle porzioni di bosco non può superare il 100%",
+    "forestAreaOnly": "Questa è l'unica porzione di bosco. Puoi eliminarla utilizzando l'icona rossa sulla mappa",
     "irrigatedHelp": "Seleziona questa opzione se gli alberi sono irrigati",
     "textureHelp": "Seleziona la tessitura del suolo. Se non hai informazioni puoi indicare una tessitura media",
     "privateHelp": "Seleziona questa opzione se non intendi condividere i dati del tuo progetto con terzi",

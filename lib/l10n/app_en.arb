@@ -1,4 +1,6 @@
 {
+    "forestAreaFull": "The total of the forest portions cannot exceed 100%",
+    "forestAreaOnly": "This is the only forest portion. You can delete it using the map red icon",
     "irrigatedHelp": "Select this option if the trees are irrigated",
     "textureHelp": "Select the soil texture for the project. If you have no information please select a mean texture",
     "privateHelp": "Select this option if you do not want to share the project data with third parties",

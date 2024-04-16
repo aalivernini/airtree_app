@@ -67,6 +67,7 @@ class GreenFormArgs {
     dat.Line?    line;
     dat.PolygonData? polData;
     bool? updateData; // if not null update tabular data
+    bool? addPolygonData;
 
 
     GreenFormArgs(
@@ -82,6 +83,7 @@ class GreenFormArgs {
         this.line,
         this.polData,
         this.updateData,
+        this.addPolygonData,
         }
     );
 }
@@ -538,7 +540,10 @@ class GreenFormState extends State<GreenForm> {
           onSaved: (String? value) {
             percentArea = int.parse(value!);
           }));
-      form2.add(addNext);
+      if (args.addPolygonData != null && args.updateData != null) {
+        form2.add(addNext);
+      }
+      //form2.add(addNext);
     }
 
         return Scaffold(
@@ -655,10 +660,11 @@ class GreenFormState extends State<GreenForm> {
                                                                 'nextInput': addNext.truth,
                                                             };
                                                             if (args.updateData != null) {
-                                                                print('update polygon');
                                                                 forestSpecies1.dbTableUpdate();
                                                             }
-
+                                                            if (args.addPolygonData != null) {
+                                                                forestSpecies1.dbInsert();
+                                                            }
                                                             Navigator.pop(context, out);
                                                             break;
                                                         default:
@@ -666,11 +672,16 @@ class GreenFormState extends State<GreenForm> {
                                                     }
                                                 }
                                             },
+                                style: ElevatedButton.styleFrom(
+                                           foregroundColor: Colors.black,
+                                           // backgroundColor: Colors.red, // Background color
+                                       ),
                                 child: const Text('Submit'),
                                 ),
                                 ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red, // Background color
+                                        foregroundColor: Colors.black,
+                                       // backgroundColor: Colors.red, // Background color
                                     ),
                                     onPressed: () {
                                         // TODO: clear form

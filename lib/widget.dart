@@ -481,7 +481,6 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
           const Padding(padding: EdgeInsets.only(bottom: 5))
         ]);
       }
-      // DEV: edit data
       buttons.add(InkWell(
               radius: 90,
               onTap: () {
@@ -517,7 +516,9 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
                           // TODO: compute maxAreaPercent iterating over all elements
                           int forestAreaPerc = 0;
                           for (var element in marker.infoPolygon!.element2) {
-                              forestAreaPerc += element.polData.percentArea;
+                              if (element.polData.id != polData.id) {
+                                  forestAreaPerc += element.polData.percentArea;
+                              }
                           }
                           maxAreaPercent = maxAreaPercent - forestAreaPerc;
                           break;
@@ -622,67 +623,154 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
   //String selectedId = mProvider.selectedMarker2[0].getId();
   if (mProvider.selectedMarker2.isNotEmpty &&
       mProvider.selectedMarker2[0].type == en.EditorType.polygon) {
-    bool next = false;
-    bool prev = false;
-    Color nextColor = Colors.grey;
-    Color prevColor = Colors.grey;
+    bool addForestZone = false;
+    bool deleteForestZone = false;
     int elements =
-        mProvider.selectedMarker2[0].infoPolygon!.element2.length - 1;
+        mProvider.selectedMarker2[0].infoPolygon!.element2.length;
     int indexElement = mProvider.selectedMarker2[0].infoPolygon!.indexElement;
+    final marker = mProvider.selectedMarker2[0];
 
-    if (indexElement < elements) {
-      next = true;
-      nextColor = Colors.blue;
+    int forestAreaPerc = 0;
+    for (var element in marker.infoPolygon!.element2) {
+        forestAreaPerc += element.polData.percentArea;
     }
-    if (indexElement > 0) {
-      prev = true;
-      prevColor = Colors.blue;
+    if (forestAreaPerc < 100) {
+      addForestZone = true;
+    }
+    if (elements > 1) {
+      deleteForestZone = true;
     }
 
     buttons.addAll([
-      const Padding(padding: EdgeInsets.only(bottom: 5)),
-      IconButton(
-        icon: const Icon(Icons.arrow_upward, size: 40.0),
-        color: nextColor,
-        onPressed: () {
-          if (next) {
-            mProvider.selectedMarker2[0].infoPolygon!.indexElement++;
-            pProvider.notifyListeners();
-          }
-          //    mProvider.deleteSelectedMarker();
-        },
-      ),
-      const Padding(padding: EdgeInsets.only(bottom: 5)),
-      IconButton(
-        icon: const Icon(Icons.arrow_downward, size: 40.0),
-        color: prevColor,
-        onPressed: () {
-          if (prev) {
-            mProvider.selectedMarker2[0].infoPolygon!.indexElement--;
-            pProvider.notifyListeners();
-          }
-          //    mProvider.deleteSelectedMarker();
-        },
-      ),
-    ]);
+        const Padding(padding: EdgeInsets.only(bottom: 5)),
+        const Padding(padding: EdgeInsets.only(bottom: 5)),
+        // ADD FOREST ZONE
+        InkWell(
+            onLongPress: () {
+                if (addForestZone) {
+                    final idGeometry = marker.infoPolygon!.id;
+                    final pol = mProvider.forest2.firstWhere((p) => p.polygonGeometry.id == idGeometry);
+                    final coords = pol.polygonGeometry.coords;
+                    Navigator.pushNamed(
+                        context,
+                        '/greenForm',
+                        arguments: inp.GreenFormArgs(
+                            idGeometry:     idGeometry,
+                            idUser:         gProvider.idUser,
+                            idProject:      gProvider.idProject,
+                            type:           marker.type,
+                            coords:         coords,
+                            maxAreaPercent: 100 - forestAreaPerc,
+                            area:           pol.polygonGeometry.area,
+                            addPolygonData:  true,
+                        ),
+                    ).then((green3) {
+                        if (green3 != null) {  // update data
+                        mProvider.initForest(context, gProvider.idProject);
+                            mProvider.initGeometries(context, gProvider.idProject).then((_){
+                                mProvider.selectedMarkerFromId(idGeometry);
+                            });
+                        }
+                    });
+
+                    pProvider.notifyListeners();
+                } else {
+                    SnackBar(content: Text(AppLocalizations.of(context)!.forestAreaFull));
+                }
+            },
+            child: Icon(
+                Icons.add_to_photos_outlined,
+                size: 40.0,
+                color: addForestZone == true
+                ? Colors.blue
+                : Colors.grey
+            ),
+        ),
+        const Padding(padding: EdgeInsets.only(bottom: 5)),
+        // DELETE FOREST ZONE
+        InkWell(
+            onLongPress: () {
+                if (deleteForestZone) {
+                    mProvider.selectedMarker2[0].infoPolygon!.element2.removeAt(indexElement);
+                    final element = mProvider.selectedMarker2[0].infoPolygon!.element2[indexElement];
+                    // final idData = element.polData.id;
+                    // final idGeometry = element.polData.idGeometry;
+                    element.polData.dbDelete().then((_){
+                        mProvider.selectedMarker2[0].infoPolygon!.indexElement = 0;
+                        mProvider.initForest(context, gProvider.idProject);
+                        pProvider.notifyListeners();
+                    });
+                } else {
+                    SnackBar(content: Text(AppLocalizations.of(context)!.forestAreaOnly));
+                }
+            },
+            child: Icon(
+                Icons.delete_sweep,
+                size: 40.0,
+                color: deleteForestZone == true
+                ?Colors.blue
+                :Colors.grey
+            ),
+        ),
+        // delete forest zone
+        ]);
   }
+  double initial = 0;
+  double distance = 0;
   return Row(children: [
     Expanded(
       flex: 85,
       child: mProvider.selectedMarker2.isNotEmpty
-          ? Container(
-              alignment: Alignment.topCenter,
+      ? Container(
+          alignment: Alignment.topCenter,
+          // DEV
+          child: GestureDetector(
+              onPanStart: (DragStartDetails details) {
+                  initial = details.globalPosition.dy;
+              },
+              onPanUpdate: (DragUpdateDetails details) {
+                  distance= details.globalPosition.dy - initial;
+              },
+              onPanEnd: (DragEndDetails details) {
+                  initial = 0.0;
+                  if (mProvider.selectedMarker2.isNotEmpty &&
+                      mProvider.selectedMarker2[0].type == en.EditorType.polygon) {
+                      int elements =
+                              mProvider.selectedMarker2[0].infoPolygon!.element2.length - 1;
+                      int indexElement = mProvider.selectedMarker2[0].infoPolygon!.indexElement;
+
+                      if (distance > 75) {
+                          if (indexElement == elements) {
+                              mProvider.selectedMarker2[0].infoPolygon!.indexElement = 0;
+                              pProvider.notifyListeners();
+                          } else {
+                              mProvider.selectedMarker2[0].infoPolygon!.indexElement++;
+                              pProvider.notifyListeners();
+                          }
+                      } else if (distance < -75) {
+                          if (indexElement == 0) {
+                              mProvider.selectedMarker2[0].infoPolygon!.indexElement = elements;
+                              pProvider.notifyListeners();
+                          } else {
+                              mProvider.selectedMarker2[0].infoPolygon!.indexElement--;
+                              pProvider.notifyListeners();
+                          }
+                      }
+                  }
+              },
               child: Table(
-                border: const TableBorder(
-                    horizontalInside: BorderSide(
-                        width: 1,
-                        color: Colors.blue,
-                        style: BorderStyle.solid)),
-                children: rows,
-              ))
-          : Text(AppLocalizations.of(context)!.markerSelected),
-    ),
-    Expanded(flex: 15, child: Column(children: buttons))
+                         border: const TableBorder(
+                             horizontalInside: BorderSide(
+                                 width: 1,
+                                 color: Colors.blue,
+                                 style: BorderStyle.solid)),
+                         children: rows,
+                     )
+              )
+      )
+      : Text(AppLocalizations.of(context)!.markerSelected),
+      ),
+      Expanded(flex: 15, child: Column(children: buttons))
   ]);
 }
 
@@ -1075,9 +1163,7 @@ List<Widget> getPageList(BuildContext context) {
     activeForegroundColor: Colors.white,
     buttonSize: const Size(50, 50), //button size
     iconTheme: const IconThemeData(size: 40.0), //icon theme of button
-    childrenButtonSize: const Size(70, 70), //size of menu items
-
-    //buttonSize: 56, //button size
+    childrenButtonSize: const Size(65, 65), //size of menu items
     visible: true,
     closeManually: false,
     curve: Curves.bounceIn,
@@ -1382,7 +1468,8 @@ List<Widget> getPageList(BuildContext context) {
       ),
       Column(children: <Widget>[
         Expanded(
-            flex: pProvider.heightMap,
+            //flex: pProvider.heightMap,
+            flex: 60,
             child: Container(
                 child: Stack(
               children: <Widget>[

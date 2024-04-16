@@ -863,6 +863,34 @@ class MapProvider extends ChangeNotifier {
     notifyListeners();
     return;
   }
+
+  Future<void>initForest(BuildContext context, String idProject) async{
+    forest2.clear();
+    var forestStored2 = await db.DatabaseManager.getPolygonGeometry2(idProject);
+    var fData3 = await db.DatabaseManager.getPolygonData3(idProject);
+
+    for (var forest in forestStored2) {
+      forest2.add(geo.GeoPolygon(polygonGeometry: forest));
+    }
+    if (!context.mounted) return;
+
+    for (var forest in forest2) {
+      var dbData2 = fData3[forest.polygonGeometry.id];
+      if (dbData2 == null) continue;
+      var data2 =
+          dbData2.map((x) => gi.InfoElementPolygon(polData: x)).toList();
+      var truth = true;
+      for (var data1 in data2) {
+        if (data1.polData.truth == 0) {
+          truth = false;
+          break;
+        }
+      }
+      var iconForest = truth ? ic.Air.forest : ic.Air.prjForest;
+      marker2.add(
+          geo.UniqueMarker.fromGeoPolygon(context, forest, data2, iconForest));
+    }
+  }
 }
 
 class ParamProvider extends ChangeNotifier {
