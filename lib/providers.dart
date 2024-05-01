@@ -83,7 +83,8 @@ class ResultProvider extends ChangeNotifier {
   }
 
   Future<String> sendProject(String idProject) async {
-    result = await io.sendProject(idProject);
+    final response = await io.sendProject(idProject);
+    final result = response.msg;
     notifyListeners();
     return result;
   }
@@ -274,63 +275,66 @@ class ResultProvider extends ChangeNotifier {
           bool deleteWebProject = false,
       }
   ) async {
-    // clear db of previous results
-    db.Project.deleteResult(idProject);
+      // clear db of previous results
+      db.Project.deleteResult(idProject);
 
-    // clear previous widget results
-    if (setProject) {
-      infoResult4id.clear();
-      infoResult4species.clear();
-      infoResultTotal = null;
-      id2species.clear();
-      dropdownItemId = -2;
-    }
-
-    // get results from airtree server
-    final resultMongo = await io.getResult(idProject, idUser);
-    setResult4id(resultMongo);
-
-    // insert result in db and in widget storage
-    result4id.forEach((key, result) {
-      result.dbInsert();
+      // clear previous widget results
       if (setProject) {
-        infoResult4id[key] = gi.InfoResult(rs: result);
+          infoResult4id.clear();
+          infoResult4species.clear();
+          infoResultTotal = null;
+          id2species.clear();
+          dropdownItemId = -2;
       }
-    });
 
-    // get airtree species id2names
-    final id2Param = await dat.Param.getMapId();
+      // get results from airtree server
+      final response = await io.getResult(idProject, idUser);
+      if (response.statusCode != 200) {
+          return response.statusCode;
+      }
+      setResult4id(response.data);
 
-    // insert result aggregated for species ...
-    setAggregatedResults();
-    result4species.forEach((key, result) {
-      result.dbInsert();
+      // insert result in db and in widget storage
+      result4id.forEach((key, result) {
+          result.dbInsert();
+          if (setProject) {
+              infoResult4id[key] = gi.InfoResult(rs: result);
+          }
+      });
+
+      // get airtree species id2names
+      final id2Param = await dat.Param.getMapId();
+
+      // insert result aggregated for species ...
+      setAggregatedResults();
+      result4species.forEach((key, result) {
+          result.dbInsert();
+          if (setProject) {
+              infoResult4species[key] = gi.InfoResult(rs: result);
+              if (id2Param[key] == null) {
+                  return;
+              }
+              id2species[key] = id2Param[key]!.name;
+          }
+      });
+
+      // insert total result ...
       if (setProject) {
-        infoResult4species[key] = gi.InfoResult(rs: result);
-        if (id2Param[key] == null) {
-          return;
-        }
-        id2species[key] = id2Param[key]!.name;
+          infoResultTotal = gi.InfoResult(rs: resultTotal!);
       }
-    });
+      resultTotal!.dbInsert();
 
-    // insert total result ...
-    if (setProject) {
-      infoResultTotal = gi.InfoResult(rs: resultTotal!);
-    }
-    resultTotal!.dbInsert();
+      // clear current db.Results
+      result4id.clear();
+      result4species.clear();
+      resultTotal = null;
 
-    // clear current db.Results
-    result4id.clear();
-    result4species.clear();
-    resultTotal = null;
+      io.setDelivered(idProject, idUser);
 
-    io.setDelivered(idProject, idUser);
-
-    // update project status
-    db.Project.setStatus(idProject, 2);
-    notifyListeners();
-    return 0;
+      // update project status
+      db.Project.setStatus(idProject, 2);
+      notifyListeners();
+      return 0;
   }
 }
 

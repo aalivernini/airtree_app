@@ -1687,7 +1687,16 @@ class Settings with Base {
         Settings settings;
         final List<Map<String, dynamic>> maps = await db.query('settings');
         if (maps.isEmpty) {
-            settings = await io.getSettingsFromMongo();
+            final response = await io.getSettingsFromMongo();
+            if (response.statusCode != 200) {
+                throw Exception(response.msg);
+            }
+            settings = Settings(
+                version      : response.data['version'],
+                atmTimeStart : response.data['atm_time_start'],
+                atmTimeEnd   : response.data['atm_time_end'],
+            );
+
             await db.insert('settings', {
                 'version': settings.version,
                 'atm_time_start': settings.atmTimeStart,
@@ -1704,7 +1713,18 @@ class Settings with Base {
     }
 
     static void updateFromWeb() async {
-        Settings settings = await io.getSettingsFromMongo();
+        Settings settings;
+        try {
+            final response = await io.getSettingsFromMongo();
+            settings = Settings(
+                version      : response.data['version'],
+                atmTimeStart : response.data['atm_time_start'],
+                atmTimeEnd   : response.data['atm_time_end'],
+            );
+        } catch (e) {
+            print('Settings update error: $e');
+            return;
+        }
         try {
             await settings.dbUpdate();
         } on DatabaseException catch (e) {

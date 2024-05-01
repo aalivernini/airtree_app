@@ -54,7 +54,11 @@ Future<int> downloadResults(BuildContext context) async {
       bool webResultReady = false;
       int webStatus = 0;
       try {   // avoid server errors
-          webStatus = int.parse(await io.getProjectStatus(prj.idProject, gProvider.idUser));
+          final response = await io.getProjectStatus(prj.idProject, gProvider.idUser);
+          if (response.statusCode != 200) {
+              continue;
+          }
+          webStatus = int.parse(response.msg);
       } catch (e) {
           print(e);
           continue;

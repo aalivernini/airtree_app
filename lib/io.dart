@@ -1,4 +1,3 @@
-//import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'dart:io';
@@ -22,38 +21,60 @@ BaseOptions dioOptions = BaseOptions(
 
 final dio = Dio(dioOptions);
 
-// GET atm_time_start and atm_time_end
-// TODO: rework to get atm_time_start and atm_time_end
-Future<String> getHttp() async {
-    String output = 'The server is down';
-    try {
-    final response = await dio.get('/ping');
-        Map<String, dynamic> json3 = jsonDecode(
-            jsonEncode(response.data)
-        );
-        output = json3['service'];
-    } catch (e) {
-        print(e);
-    }
-    return output;
+
+class HttpResult {
+    final String msg;
+    final int statusCode;
+    Map<String, dynamic> data;
+
+    HttpResult(this.msg, this.statusCode, {this.data = const {}});
 }
 
+// GET atm_time_start and atm_time_end
+// TODO: rework to get atm_time_start and atm_time_end
+// Future<String> getHttp() async {
+//     String output = 'The server is down';
+//     try {
+//     final response = await dio.get('/ping');
+//         Map<String, dynamic> json3 = jsonDecode(
+//             jsonEncode(response.data)
+//         );
+//         output = json3['service'];
+//     } catch (e) {
+//         print(e);
+//     }
+//     return output;
+// }
+
 // GET settings data
-Future<db.Settings> getSettingsFromMongo() async {
-    String address = '/get_settings?api_key=$airtreeApiKey';
+Future<HttpResult> getSettingsFromMongo() async {
+    String address = '/get-settings?api_key=$airtreeApiKey';
     final response = await dio.get(address);
-    //final in1 = jsonEncode(response.data);
-    Map<String, dynamic> json3 = jsonDecode(
-        response.data
-    );
-    final out = db.Settings(
-        version      : json3['version'],
-        atmTimeStart : json3['atm_time_start'],
-        atmTimeEnd   : json3['atm_time_end'],
-    );
+    HttpResult out;
+    if (response.statusCode == 200) {
+        Map<String, dynamic> json3 = jsonDecode(
+            response.data
+        );
+        out = HttpResult(
+            'Settings received',
+            response.statusCode!,
+            data: json3,
+        );
+    } else {
+        out = HttpResult(
+            response.data['detail'],
+            response.statusCode!,
+        );
+    }
+    // final out = db.Settings(
+    //     version      : json3['version'],
+    //     atmTimeStart : json3['atm_time_start'],
+    //     atmTimeEnd   : json3['atm_time_end'],
+    // );
     return out;
 }
 
+// TODO: move to database.dart
 Future<String> getProjectDataJson(String idProject) async {
     // get and set project lat lon
 
@@ -64,10 +85,10 @@ Future<String> getProjectDataJson(String idProject) async {
 }
 
 // POST project data (with gzip)
-Future<String> sendProject(String idProject) async {
+Future<HttpResult> sendProject(String idProject) async {
     var projectData = await getProjectDataJson(idProject);
 
-    String output = 'Server upload issue';
+    HttpResult httpResult;
     try {
         var dataGzip = gzip.encode(
             utf8.encode(
@@ -77,78 +98,117 @@ Future<String> sendProject(String idProject) async {
         var options = Options(
             headers: {
                 HttpHeaders.contentLengthHeader: dataGzip.length, // set content-length
+                HttpHeaders.contentTypeHeader: 'multipart/form-data',
+                HttpHeaders.contentEncodingHeader: 'gzip',
             },
         );
+        var formData = FormData.fromMap({
+            'file': MultipartFile.fromBytes(
+                dataGzip,
+            ),
+        });
 
-        String address = '/post_project';
+
+        String address = '/post-project';
         address = '$address?api_key=$airtreeApiKey';
         final response = await dio.post(
             address,
-            data: Stream.fromIterable(dataGzip.map((e) => [e])),
+            //data: Stream.fromIterable(dataGzip.map((e) => [e])),
+            data: formData,
             options: options,
             onSendProgress: (int sent, int total) {
                 //print('$sent $total');
             },
         );
-        output = response.data.toString();
+        httpResult = HttpResult(
+            'upload ok',
+            response.statusCode!
+        );
+
         await db.Project.setStatus(idProject, 1);
     }
     on DioException catch (e) {
+        httpResult = HttpResult(
+            'Server upload issue',
+            404,
+        );
         await db.Project.setStatus(idProject, 0);
-        output = e.response?.data.toString() ?? 'Server upload issue';
     }
-    return output;
+    return httpResult;
 }
 
-Future<Map<String, dynamic>> getResult (String idProject, String idUser) async {
-    String address = '/get_result';
+Future<HttpResult> getResult (String idProject, String idUser) async {
+    String address = '/get-result';
     address = '$address?api_key=$airtreeApiKey&id_project=$idProject&id_user=$idUser';
-    final rs = await dio.get(
-        address,
-        options: Options(responseType: ResponseType.stream), // Set the response type to `stream`.
-    );
+    HttpResult out;
+    try {
+        final rs = await dio.get(
+            address,
+            options: Options(responseType: ResponseType.stream), // Set the response type to `stream`.
+        );
 
-    List<int> byteList2 = [];
+        List<int> byteList2 = [];
 
-    final stream = rs.data.stream; // Response stream.
-    await for (var data in stream) {
-        for (var b in data) {
-            byteList2.add(b);
+        final stream = rs.data.stream; // Response stream.
+        await for (var data in stream) {
+            for (var b in data) {
+                byteList2.add(b);
+            }
         }
+        var bytes = Uint8List.fromList(byteList2);
+        final jsonString = utf8.decode(gzip.decode(bytes));
+        Map<String, dynamic> result = jsonDecode(jsonString);
+        out = HttpResult(
+            'Result received',
+            rs.statusCode!,
+            data: result,
+        );
+    } catch (e) {
+        out = HttpResult(
+            '$e',
+            404,
+        );
     }
-    var bytes = Uint8List.fromList(byteList2);
-    final jsonString = utf8.decode(gzip.decode(bytes));
-    Map<String, dynamic> result = jsonDecode(jsonString);
-    return result;
+    return out;
 }
 
-Future<Map<String, dynamic>> setDelivered (String idProject, String idUser) async {
-    String address = '/set_delivered';
+Future<HttpResult> setDelivered (String idProject, String idUser) async {
+    String address = '/set-delivered';
     address = '$address?api_key=$airtreeApiKey&id_project=$idProject&id_user=$idUser';
     final response = await dio.patch(address);
-    // Map<String, dynamic> json3 = jsonDecode(
-    //     response.data
-    // );
-    const json3 = {'status': 'delivered'};
-    return json3;
+    if (response.statusCode != 200) {
+        return HttpResult(
+            'Server issue',
+            response.statusCode!,
+        );
+    }
+    final out = HttpResult(
+        'Status updated',
+        response.statusCode!,
+    );
+    return out;
 }
 
 
 // TODO
 // GET project status
-Future<String> getProjectStatus(String idProject, String idUser) async {
-    String output = 'The server is down';
+Future<HttpResult> getProjectStatus(String idProject, String idUser) async {
+    String msg;
+    int statusCode;
     try {
-        String address = '/get_work_status';
-    final response = await dio.get('$address?api_key=$airtreeApiKey&id_project=$idProject&id_user=$idUser');
-        //Map<String, dynamic> json3 = jsonDecode(
-        //    jsonEncode(response.data)
-        //);
-        output = response.data.toString();
+        String address = '/get-work-status';
+        final response = await dio.get('$address?api_key=$airtreeApiKey&id_project=$idProject&id_user=$idUser');
+        msg = response.data.toString();
+        statusCode = response.statusCode!;
     } catch (e) {
-        print(e);
+        msg = 'The server is down';
+        statusCode = 404;
     }
-    return output;
+    final HttpResult out = HttpResult(
+        msg,
+        statusCode,
+    );
+    return out;
 }
 
 
