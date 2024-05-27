@@ -96,7 +96,11 @@ List<Widget> getLaiButtons (
             SystemChrome.setPreferredOrientations(
                 [DeviceOrientation.portraitUp],
             );
+
+
+            // SWITCH IN AIRTREE
             Navigator.popUntil(context, ModalRoute.withName('/greenForm'));
+            // Navigator.popUntil(context, ModalRoute.withName('/'));
         }) ,
 
         // -REDO-
@@ -111,12 +115,11 @@ List<Widget> getLaiButtons (
             pLai.lai2Reset();
 
             // exit to tree screen
-            //Navigator.pushNamedAndRemoveUntil(context, '/', (Route<dynamic> route) => false);
+            Navigator.popUntil(context, ModalRoute.withName('/greenForm'));
             // Navigator.popUntil(context, ModalRoute.withName('/'));
             SystemChrome.setPreferredOrientations(
                 [DeviceOrientation.portraitUp],
             );
-            Navigator.popUntil(context, ModalRoute.withName('/greenForm'));
 
         }) ,
     ];

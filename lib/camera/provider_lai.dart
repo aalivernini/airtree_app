@@ -5,6 +5,7 @@ enum TypeThreshold {
     minDist,
     hsv,
     lab,
+    greeness,
 }
 
 
@@ -23,7 +24,9 @@ class ProviderLai extends ChangeNotifier {
     bool boolLai = true; // avoid computing lai twice when switching method
 
     // threshold
-    TypeThreshold typeThreshold = TypeThreshold.minDist;
+    TypeThreshold typeThreshold = TypeThreshold.greeness;
+    //TypeThreshold typeThreshold = TypeThreshold.greeness;
+
     int ixThreshold = 0;
 
     // camera

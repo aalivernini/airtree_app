@@ -12,7 +12,8 @@ String airtreeApiKey = Env.airtreeKey;
 
 
 BaseOptions dioOptions = BaseOptions(
-  baseUrl: "http://$addressHome",
+  // baseUrl: "http://$addressHome",
+  baseUrl: "$addressHome",
   connectTimeout: const Duration(milliseconds: 5000),
   receiveTimeout: const Duration(milliseconds: 5000 * 10),
   receiveDataWhenStatusError: true,
@@ -128,6 +129,7 @@ Future<HttpResult> sendProject(String idProject) async {
         await db.Project.setStatus(idProject, 1);
     }
     on DioException catch (e) {
+        print(e);
         httpResult = HttpResult(
             'Server upload issue',
             404,

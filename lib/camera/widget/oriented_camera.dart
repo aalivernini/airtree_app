@@ -12,31 +12,8 @@ import 'package:camera/camera.dart' as cam; // in alternative: https://github.co
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import '../provider_lai.dart' as pr_lai;
+import 'package:flutter/services.dart';
 
-
-// printExifOf(String path) async {
-//     final fileBytes = File(path).readAsBytesSync();
-//     final data = await ex.readExifFromBytes(fileBytes);
-//
-//     if (data.isEmpty) {
-//         print("No EXIF information found");
-//         return;
-//     }
-//
-//     if (data.containsKey('JPEGThumbnail')) {
-//         print('File has JPEG thumbnail');
-//         data.remove('JPEGThumbnail');
-//     }
-//     if (data.containsKey('TIFFThumbnail')) {
-//         print('File has TIFF thumbnail');
-//         data.remove('TIFFThumbnail');
-//     }
-//
-//     for (final entry in data.entries) {
-//         print("${entry.key}: ${entry.value}");
-//     }
-//
-// }
 
 class Orientation extends ChangeNotifier {
     String? picturePath;
@@ -119,6 +96,7 @@ class Orientation extends ChangeNotifier {
 
                 if (pictureStatus == 0) {
                     if (tilt > (laiAngle - tolerance) && tilt < (laiAngle + tolerance)) {
+                        HapticFeedback.lightImpact();
                         // get the standard deviation of the queue
                         final std = sqrt(queue.map((e) => (e - tilt) * (e - tilt)).reduce((a, b) => a + b) / queue.length);
                         if (std < 1) {
@@ -305,7 +283,8 @@ class Camera {
             //cam.ResolutionPreset.max,
             // https://medium.com/brickit-engineering/how-we-doubled-the-photo-resolution-from-flutter-camera-on-ios-e17004cd0b74
             cam.ResolutionPreset.ultraHigh,
-            imageFormatGroup: cam.ImageFormatGroup.yuv420,
+            // imageFormatGroup: cam.ImageFormatGroup.yuv420,
+            imageFormatGroup: cam.ImageFormatGroup.bgra8888,
             enableAudio: false,
         );
         while (controller == null) {
@@ -320,6 +299,7 @@ class Camera {
 
         // turn off flash
         controller!.setFlashMode(cam.FlashMode.off);
+        controller!.setZoomLevel(2.0);
         return 0;
     }
 
@@ -328,8 +308,8 @@ class Camera {
             await Future.delayed(const Duration(milliseconds: 100));
         }
         await Future.delayed(const Duration(milliseconds: 100));
-        await controller!.initialize();
-        controller!.setFlashMode(cam.FlashMode.off);
+        //await controller!.initialize();
+        //controller!.setFlashMode(cam.FlashMode.off);
 
         await controller!.setFocusMode(cam.FocusMode.locked);
         await controller!.setExposureMode(cam.ExposureMode.locked);

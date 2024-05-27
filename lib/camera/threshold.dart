@@ -29,6 +29,8 @@ abstract class Threshold {
                return ThresholdHsv();
            case pr.TypeThreshold.lab:
                return ThresholdLab();
+              case pr.TypeThreshold.greeness:
+               return ThresholdGreeness();
            default:
                return ThresholdMinimum();
         }
@@ -179,6 +181,9 @@ class ThresholdMinimum extends Threshold {
         bool b = false;
         int modes = 0;
         for (var k = 1; k < len-1; k++) {
+            if (y[k] == 0) {  // TESTING
+                continue;
+            }
             if (y[k-1] < y[k] && y[k+1] < y[k]) {
                 modes += 1;
                 if (modes > 2) {
@@ -250,6 +255,147 @@ class ThresholdMinimum extends Threshold {
     }
 }
 
+// https://plantmethods.biomedcentral.com/articles/10.1186/s13007-019-0402-3/tables/6
+class ThresholdGreeness extends Threshold {
+    // from Cover package
+    final size = List<int>.filled(3,0);
+    final au = ap.ArrayPlus();
+
+    bool bimodtest(List<double> y) {
+        // Test if a histogram is bimodal.
+        // from HistThresh toolbox
+        final len = y.length;
+        bool b = false;
+        int modes = 0;
+        for (var k = 1; k < len-1; k++) {
+            if (y[k] == 0) {  // TESTING
+                continue;
+            }
+            if (y[k-1] < y[k] && y[k+1] < y[k]) {
+                modes += 1;
+                if (modes > 2) {
+                    return false;
+                }
+            }
+        }
+        if (modes == 2) {
+            b = true;
+        }
+        return b;
+    }
+
+
+    int findMinimum(      // return threshold value
+        List<int> hist,   // flatted histogram array
+    ) {
+        // convert to double
+        var flat = hist.map((x) => x.toDouble()).toList();
+        int iter = 0;
+        final len = flat.length;
+        while (!bimodtest(flat)) {
+            flat = au.conv1d(flat, len);
+            iter += 1;
+            // If the histogram turns out not to be bimodal, set T to zero.
+            if (iter > 10000) {
+                return 0;
+            }
+        }
+        // The threshold is the minimum between the two peaks.
+        var threshold = 0;
+        bool peakfound = false;
+        for (var k = 1; k < len; k++) {
+            if (flat[k-1] < flat[k]
+                && flat[k+1] < flat[k]) {
+                peakfound = true;
+            }
+            if (peakfound
+                && flat[k-1] >= flat[k]
+                && flat[k+1] >= flat[k]) {
+                threshold = hist[k-1];
+                return k-1;
+            }
+        }
+        return threshold;
+}
+
+
+    @override
+    List<int> applyThreshold(ImageArray3 imgArr) {
+        size[0] = imgArr.length;          // width
+        size[1] = imgArr[0].length;       // height
+        size[2] = imgArr[0][0].length;    // depth  (ie. 3 for RGB)
+
+        // get blue band (flat) (coveR) https://link.springer.com/epdf/10.1007/s00468-022-02338-5?sharing_token=Bqh24tLEoHoTD61xilF9Sve4RwlQNchNByi7wbcMAY6erI7p25b_bCe_SlX9nbHtstgks-TW5CVw-SteavcAqFtGrC_3neKDD2Ghog46MYf7--0DRHhCpFg78RWfXrUixczcCpXHPq9ucgJpvDRw_P6jjdveScsjhTZUkfXAQyM=
+        final arrBlue = au.flattenInner(imgArr, 2);
+        final arrGreen = au.flattenInner(imgArr, 1);
+        final arrRed = au.flattenInner(imgArr, 0);
+
+        // GET GREENESS INDEX
+        // Greeness index = 2*G - 2*R + B
+        // https://iforest.sisef.org/pdf/?id=ifor0939-007
+        final arrGreeness = List<int>.filled(arrGreen.length, 0);
+        final arrLen = arrGreen.length;
+        var maxValue = 0;
+        var minValue = 1000000;
+        int currentValue = 0;
+        int green = 0;
+        int red = 0;
+        int blue = 0;
+
+        for (var k = 1; k < arrLen; k++) {
+            red = arrRed[k];
+            green = arrGreen[k];
+            blue = arrBlue[k];
+
+            //currentValue = (2 * green - red - blue);
+            //currentValue = (2 * blue - green);
+            currentValue = (30 * red + 59 * green + 11 * blue) ~/ 100;  // LUMA index https://www.biorxiv.org/content/10.1101/2022.04.01.486683v1.full
+            //print("currentValue: $currentValue");
+            //currentValue = (green - red) ~/ sub;
+            //currentValue = max(0, currentValue);
+
+            //currentValue = (
+            //    2 * arrGreen[k]
+            //    - 2 * arrRed[k]
+            //    + arrBlue[k]
+            //);
+            arrGreeness[k] = currentValue;
+            //maxValue = max(maxValue, currentValue);
+            //minValue = min(minValue, currentValue);
+        }
+
+        // rescale to 0-255
+        // print("maxValue: $maxValue");
+        // print("minValue: $minValue");
+        // var to_add = 0;
+        // if (minValue < 0) {
+        //     to_add = -minValue;
+        //     minValue = 0;
+        //     maxValue += to_add;
+        // }
+        // // gap filling
+        // for (var k = 1; k < arrLen; k++) {
+        //     currentValue = arrGreeness[k] + to_add;
+        //     currentValue = (
+        //         ((currentValue - minValue) * 255)
+        //             / (maxValue - minValue)
+        //     ) ~/ 1;
+        //     arrGreeness[k] = currentValue;
+        // }
+
+        // get histogram
+        final hist = au.histogram(arrGreeness, 256);
+
+        // find minimum
+        final thr = findMinimum(hist);  // find threshold value
+
+        // apply threshold
+        final out1d = arrGreeness.map((val) => val > thr ? 0 : 1).toList();
+
+        // reshape to 2d
+        return out1d;
+    }
+}
 
 
 class ThresholdLab extends Threshold {
@@ -507,7 +653,9 @@ class Lai {
         final foliageCover  = 1 - totalGapFraction;
         final crownCover    = 1 - largeGap;
         final crownPorosity = 1 - (foliageCover /crownCover);
-        final actualLai     = -crownCover*log(crownPorosity)/ 0.92;
+        var actualLai     = -crownCover*log(crownPorosity)/ 0.92;
+        actualLai = actualLai - 0.2 * actualLai; // correction factor to exclude Wood Area Index. From: https://agupubs.onlinelibrary.wiley.com/doi/pdf/10.1029/2018RG000608
+
         // final effectiveLai  = -log(1 - foliageCover) / 0.92;  // 0.92 is the extinction coefficient for 57.5 deg
         // final clumpingIndex = effectiveLai/actualLai;
 
