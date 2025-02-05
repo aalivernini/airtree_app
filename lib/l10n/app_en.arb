@@ -6,7 +6,7 @@
     "privateHelp": "Select this option if you do not want to share the project data with third parties",
     "yearSimulationHelp": "Pollutant removal by vegetation will be assessed using local meteo data of the selected year",
     "yearSimulation": "Reference year",
-    "insertGreen": "1) Tap on the orange icon and select a new tree/tree row/forest \n\n2) tap on the map to position the vegetation (multiple taps are required to position the tree rows or the forest)\n\n3) Use blue buttons to reset, change or confirm the vegetation position",
+    "insertGreen": "1) Tap on the orange icon and select a new tree/tree row/forest \n\n2) tap on the map to position the vegetation. Use blue buttons to reset, change or confirm the vegetation position",
     "helpLabel": "Show help labels",
     "deleteProject": "Delete project",
     "keepGreen": "Keep existing green option for the next insert",

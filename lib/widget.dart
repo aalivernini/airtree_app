@@ -2,6 +2,7 @@
 
 // ignore_for_file: prefer_const_constructors, sort_child_properties_last, prefer_const_literals_to_create_immutables
 
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -31,6 +32,7 @@ import 'dart:convert';
 import 'env.dart';
 import 'package:http/http.dart' as http;
 import 'widget_other.dart' as oth;
+import 'package:flutter/services.dart';
 
 
 
@@ -1650,18 +1652,33 @@ Widget getResultPage(BuildContext context) {
               // // db.Project.setStatus(gProvider.project!.idProject, 1);
               // gProvider.getProjects();
               setProjectCoords(context);
+              SnackBarAction? action;
               rProvider.sendProject(idProject).then((response) {
+                  var duration = Duration(seconds: 2);
+                  if  (response.statusCode == 404) {
+                      duration = Duration(seconds: 10);
+                      action = SnackBarAction(
+                          label: 'Copy',
+                          onPressed: () {
+                              Clipboard.setData(ClipboardData(text: response.msg));
+                          }
+                      );
+                  }
+
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(response)),
+                  SnackBar(
+                      content: Text(response.msg),
+                      duration: duration,
+                      action: action,
+                  ),
                 );
-                if (response != 'Server upload issue') {
+                if (response.statusCode != 404) {
                   // db.Project.setStatus(gProvider.project!.idProject, 2);
                     gProvider.projectStatus = 1;
                     gProvider.project!.status = 1;
                     // db.Project.setStatus(gProvider.project!.idProject, 1);
                     gProvider.getProjects();
                 }
-
               });
             },
           )));

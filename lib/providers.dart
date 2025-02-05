@@ -16,6 +16,8 @@ import 'geo_info.dart' as gi;
 import 'icon.dart' as ic;
 import 'io.dart' as io;
 import 'package:intl/intl.dart';
+import 'http_result.dart';
+
 
 class ResultProvider extends ChangeNotifier {
   String result = '';
@@ -82,11 +84,11 @@ class ResultProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> sendProject(String idProject) async {
+  Future<HttpResult> sendProject(String idProject) async {
     final response = await io.sendProject(idProject);
-    final result = response.msg;
+    //final result = response.msg;
     notifyListeners();
-    return result;
+    return response;
   }
 
   void setResult4id(Map<String, dynamic> result) {

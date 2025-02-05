@@ -4,6 +4,7 @@ import 'dart:io';
 import 'database.dart' as db;
 import 'dart:typed_data';
 import 'env.dart' ;
+import 'http_result.dart';
 
 
 
@@ -23,13 +24,13 @@ BaseOptions dioOptions = BaseOptions(
 final dio = Dio(dioOptions);
 
 
-class HttpResult {
-    final String msg;
-    final int statusCode;
-    Map<String, dynamic> data;
-
-    HttpResult(this.msg, this.statusCode, {this.data = const {}});
-}
+// class HttpResult {
+//     final String msg;
+//     final int statusCode;
+//     Map<String, dynamic> data;
+//
+//     HttpResult(this.msg, this.statusCode, {this.data = const {}});
+// }
 
 // GET atm_time_start and atm_time_end
 // TODO: rework to get atm_time_start and atm_time_end
@@ -128,10 +129,24 @@ Future<HttpResult> sendProject(String idProject) async {
 
         await db.Project.setStatus(idProject, 1);
     }
+    // fix search: https://api.dart.dev/stable/3.4.4/dart-core/StackTrace-class.html
+    // https://api.dart.dev/stable/3.4.4/dart-core/StackTrace-class.html
     on DioException catch (e) {
+        var msg = 'Server upload issue';
+        if (e.message != null) {
+            msg = e.message!;
+
+        }
+        if (e.response != null) {
+            msg = '$msg\ne.response!.data.toString()';
+        } else {
+            msg = '$msg\n${e.stackTrace}';
+        }
+
         print(e);
         httpResult = HttpResult(
-            'Server upload issue',
+//            'Server upload issue',
+            msg,
             404,
         );
         await db.Project.setStatus(idProject, 0);
