@@ -68,11 +68,6 @@ Future<HttpResult> getSettingsFromMongo() async {
             response.statusCode!,
         );
     }
-    // final out = db.Settings(
-    //     version      : json3['version'],
-    //     atmTimeStart : json3['atm_time_start'],
-    //     atmTimeEnd   : json3['atm_time_end'],
-    // );
     return out;
 }
 

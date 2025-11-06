@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'database.dart' as db;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:Airtree/src/generated/l10n/app_localizations.dart';
 
 
 class UserForm extends StatefulWidget {

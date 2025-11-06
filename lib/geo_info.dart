@@ -11,7 +11,7 @@ import 'database.dart' as db;
 import 'dart:math';
 import 'chart.dart' as cha;
 import 'package:intl/intl.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:Airtree/src/generated/l10n/app_localizations.dart';
 
 double log10(num x) => x == 0 ? 0 : log(x) / ln10;
 

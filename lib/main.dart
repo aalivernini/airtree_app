@@ -9,7 +9,7 @@ import 'providers.dart' as pr;
 import 'widget.dart' as wid;
 import 'widget_other.dart' as oth;
 import 'package:Airtree/l10n/l10n.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:Airtree/src/generated/l10n/app_localizations.dart';
 import 'package:package_info_plus/package_info_plus.dart' as info;
 import 'form.dart' as inp;
 

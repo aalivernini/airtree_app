@@ -11,7 +11,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:Airtree/src/generated/l10n/app_localizations.dart';
 
 import 'package:flutter_map_dragmarker/flutter_map_dragmarker.dart';
 import 'package:objectid/objectid.dart';

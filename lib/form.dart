@@ -7,7 +7,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'camera/provider_lai.dart' as pr_lai;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:Airtree/src/generated/l10n/app_localizations.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 
