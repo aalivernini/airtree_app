@@ -69,7 +69,7 @@ class AppLocalizationsIt extends AppLocalizations {
       'Dichiaro di aver letto e compreso i Termini e le Condizioni d\'uso e di accettarli senza riserve';
 
   @override
-  String get privacy => 'Privacy Policy';
+  String get privacy => 'Privacy policy';
 
   @override
   String get privacy_accept =>

@@ -12,5 +12,11 @@ abstract class Env {
 
   @EnviedField(varName: 'AIRTREE_KEY', obfuscate: true)
   static final String airtreeKey = _Env.airtreeKey;
+
+  @EnviedField(varName: 'AZURE_KEY', obfuscate: true)
+  static final String azureKey = _Env.azureKey;
+
+  @EnviedField(varName: 'AZURE_ID', obfuscate: true)
+  static final String azureID = _Env.azureID;
 }
 

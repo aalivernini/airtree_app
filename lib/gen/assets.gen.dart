@@ -25,27 +25,11 @@ class $LibL10nGen {
   /// File path: lib/l10n/app_it.arb
   String get appIt => 'lib/l10n/app_it.arb';
 
-  /// File path: lib/l10n/app_localizations.dart
-  String get appLocalizations => 'lib/l10n/app_localizations.dart';
-
-  /// File path: lib/l10n/app_localizations_en.dart
-  String get appLocalizationsEn => 'lib/l10n/app_localizations_en.dart';
-
-  /// File path: lib/l10n/app_localizations_it.dart
-  String get appLocalizationsIt => 'lib/l10n/app_localizations_it.dart';
-
   /// File path: lib/l10n/l10n.dart
   String get l10n => 'lib/l10n/l10n.dart';
 
   /// List of all assets
-  List<String> get values => [
-        appEn,
-        appIt,
-        appLocalizations,
-        appLocalizationsEn,
-        appLocalizationsIt,
-        l10n
-      ];
+  List<String> get values => [appEn, appIt, l10n];
 }
 
 class Assets {

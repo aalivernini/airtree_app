@@ -2,13 +2,12 @@
 
 // ignore_for_file: prefer_const_constructors, sort_child_properties_last, prefer_const_literals_to_create_immutables
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'mdi_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:Airtree/src/generated/l10n/app_localizations.dart';
@@ -34,11 +33,6 @@ import 'package:http/http.dart' as http;
 import 'widget_other.dart' as oth;
 import 'package:flutter/services.dart';
 
-
-
-
-
-
 const bool isMobile = true;
 
 Future<int> downloadResults(BuildContext context) async {
@@ -46,55 +40,58 @@ Future<int> downloadResults(BuildContext context) async {
   final gProvider = Provider.of<pr.GlobalProvider>(context, listen: false);
   int result = 0;
   for (var prj in gProvider.projList) {
-        //print('prj status : ${prj.status}');
+    //print('prj status : ${prj.status}');
 
     if (prj.status == 1) {
-        bool privatePrj = prj.privateProject == 1;
+      bool privatePrj = prj.privateProject == 1;
 
       // project sent to airtree server
       // check if results are are ready
       bool webResultReady = false;
       int webStatus = 0;
-      try {   // avoid server errors
-          final response = await io.getProjectStatus(prj.idProject, gProvider.idUser);
-          if (response.statusCode != 200) {
-              continue;
-          }
-          webStatus = int.parse(response.msg);
-      } catch (e) {
-          print(e);
+      try {
+        // avoid server errors
+        final response =
+            await io.getProjectStatus(prj.idProject, gProvider.idUser);
+        if (response.statusCode != 200) {
           continue;
+        }
+        webStatus = int.parse(response.msg);
+      } catch (e) {
+        print(e);
+        continue;
       }
       if (webStatus == 4) {
         webResultReady = true;
       }
 
       if (webResultReady) {
-          bool setProject =
-                  false; // check if this is the current project. In this case the data will be directly loaded
-          if (prj.idProject == gProvider.idProject) {
-              setProject = true;
-          }
-          await rProvider.getResultFromWeb(prj.idProject, gProvider.idUser, setProject: setProject, deleteWebProject: privatePrj);
-          await db.Project.setStatus(prj.idProject, 2);
-          gProvider
-                  .projList[gProvider.projList
-                  .indexWhere((element) => element.idProject == prj.idProject)]
-                  .status = 2;
-          await gProvider
-                  .getProjects(); // project status set to 2: results downloaded
+        bool setProject =
+            false; // check if this is the current project. In this case the data will be directly loaded
+        if (prj.idProject == gProvider.idProject) {
+          setProject = true;
+        }
+        await rProvider.getResultFromWeb(prj.idProject, gProvider.idUser,
+            setProject: setProject, deleteWebProject: privatePrj);
+        await db.Project.setStatus(prj.idProject, 2);
+        gProvider
+            .projList[gProvider.projList
+                .indexWhere((element) => element.idProject == prj.idProject)]
+            .status = 2;
+        await gProvider
+            .getProjects(); // project status set to 2: results downloaded
 
-          if (setProject) {
-              // this is the current project
-              rProvider.dropdownItemId = -2;
-              rProvider.getResultFromDb(gProvider.idProject).then((value) {
-                  rProvider.setReady(true);
-              });
-              gProvider.projectStatus = 2;
-              gProvider.project!.status = 2;
-          }
+        if (setProject) {
+          // this is the current project
+          rProvider.dropdownItemId = -2;
+          rProvider.getResultFromDb(gProvider.idProject).then((value) {
+            rProvider.setReady(true);
+          });
+          gProvider.projectStatus = 2;
+          gProvider.project!.status = 2;
+        }
 
-          result = 1;
+        result = 1;
       }
     }
   }
@@ -119,10 +116,10 @@ List<Widget> getPollutantButtonList(BuildContext context) {
     fontSize: 12,
   );
   final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue,
+    backgroundColor: Colors.blue,
   );
   final ButtonStyle buttonStyleDisabled = ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey,
+    backgroundColor: Colors.grey,
   );
   return pol3.entries
       .map((e) => Row(children: [
@@ -254,20 +251,21 @@ void addGreen(BuildContext context, en.EditorType type) async {
   switch (type) {
     case en.EditorType.polygon:
       while (true) {
-          var green3 =  await Navigator.pushNamed(
-              context,
-              '/greenForm',
-              arguments: inp.GreenFormArgs(
-                  idGeometry:     idGeometry,
-                  idUser:         gProvider.idUser,
-                  idProject:      gProvider.idProject,
-                  type:           type,
-                  coords:         coords,
-                  maxAreaPercent: maxAreaPercent,
-                  area:           area,
-              ),
-          ) as Map?;
-        if (green3 == null) {  // cancel
+        var green3 = await Navigator.pushNamed(
+          context,
+          '/greenForm',
+          arguments: inp.GreenFormArgs(
+            idGeometry: idGeometry,
+            idUser: gProvider.idUser,
+            idProject: gProvider.idProject,
+            type: type,
+            coords: coords,
+            maxAreaPercent: maxAreaPercent,
+            area: area,
+          ),
+        ) as Map?;
+        if (green3 == null) {
+          // cancel
           return;
         }
 
@@ -281,19 +279,20 @@ void addGreen(BuildContext context, en.EditorType type) async {
     default:
       if (!context.mounted) return;
       green = await Navigator.pushNamed(
-              context,
-              '/greenForm',
-              arguments: inp.GreenFormArgs(
-                  idGeometry:     idGeometry,
-                  idUser:         gProvider.idUser,
-                  idProject:      gProvider.idProject,
-                  type:           type,
-                  coords:         coords,
-                  maxAreaPercent: maxAreaPercent,
-                  area:           area,
-              ),
-          );
-      if (green == null) { // cancel
+        context,
+        '/greenForm',
+        arguments: inp.GreenFormArgs(
+          idGeometry: idGeometry,
+          idUser: gProvider.idUser,
+          idProject: gProvider.idProject,
+          type: type,
+          coords: coords,
+          maxAreaPercent: maxAreaPercent,
+          area: area,
+        ),
+      );
+      if (green == null) {
+        // cancel
         return;
       }
       break;
@@ -431,7 +430,7 @@ Row getMapPanel(BuildContext context) {
           IconButton(
             icon: Icon(Icons.map),
             onPressed: () {
-                gProvider.setMapType(1);
+              gProvider.setMapType(1);
             },
           ),
           Text("OpenStreetMap"),
@@ -442,7 +441,7 @@ Row getMapPanel(BuildContext context) {
           IconButton(
             icon: Icon(Icons.map),
             onPressed: () {
-                gProvider.setMapType(2);
+              gProvider.setMapType(2);
             },
           ),
           Text("Bing satellite"),
@@ -453,7 +452,7 @@ Row getMapPanel(BuildContext context) {
           IconButton(
             icon: Icon(Icons.map),
             onPressed: () {
-                gProvider.setMapType(3);
+              gProvider.setMapType(3);
             },
           ),
           Text("Bing hybrid"),
@@ -491,77 +490,80 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
         ]);
       }
       buttons.add(InkWell(
-              radius: 90,
-              onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(AppLocalizations.of(context)!.longPress)),
-                  );
-              },
-              onLongPress: () async {
-                  final marker = mProvider.selectedMarker2[0];
-                  dat.Point? pnt;
-                  dat.Line? line;
-                  dat.PolygonData? polData;
-                  String idGeometry = marker.getId(); // this value is not correct for polygons. Fixed in switch below
-                  int maxAreaPercent = 100;
-                  List<LatLng> coords;
-                  double area = 0;  //unused
+        radius: 90,
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(AppLocalizations.of(context)!.longPress)),
+          );
+        },
+        onLongPress: () async {
+          final marker = mProvider.selectedMarker2[0];
+          dat.Point? pnt;
+          dat.Line? line;
+          dat.PolygonData? polData;
+          String idGeometry = marker
+              .getId(); // this value is not correct for polygons. Fixed in switch below
+          int maxAreaPercent = 100;
+          List<LatLng> coords;
+          double area = 0; //unused
 
-                  switch (marker.type) {
-                      case en.EditorType.point:
-                          pnt = marker.infoPoint!.pnt;
-                          coords = [pnt.latlng];
-                          break;
-                      case en.EditorType.line:
-                          line = marker.infoLine!.line;
-                          coords = line.coords;
-                          break;
-                      case en.EditorType.polygon:
-                          var index = marker.infoPolygon!.indexElement;
-                          polData = marker.infoPolygon!.element2[index].polData;
-                          idGeometry = marker.infoPolygon!.id;
-                          var pol = mProvider.forest2.firstWhere((p) => p.polygonGeometry.id == idGeometry);
-                          coords = pol.polygonGeometry.coords;
-                          // TODO: compute maxAreaPercent iterating over all elements
-                          int forestAreaPerc = 0;
-                          for (var element in marker.infoPolygon!.element2) {
-                              if (element.polData.id != polData.id) {
-                                  forestAreaPerc += element.polData.percentArea;
-                              }
-                          }
-                          maxAreaPercent = maxAreaPercent - forestAreaPerc;
-                          break;
-                  }
-                  await Navigator.pushNamed(
-                      context,
-                      '/greenForm',
-                      arguments: inp.GreenFormArgs(
-                          idGeometry:     idGeometry,
-                          idUser:         gProvider.idUser,
-                          idProject:      gProvider.idProject,
-                          type:           marker.type,
-                          coords:         coords,
-                          maxAreaPercent: maxAreaPercent,
-                          area:           area,
-                          pnt:            pnt,
-                          line:           line,
-                          polData:        polData,
-                          updateData:     true,
-                      ),
-                  ).then((green3) {
-                  if (green3 != null) {  // update data
-                      mProvider.initGeometries(context, gProvider.idProject).then((_){
-                          mProvider.selectedMarkerFromId(idGeometry);
-                      });
-                  }
-                  });
-                  // TODO update
-              },
-              child: Ink(
-                         child:
-                         const Icon(Icons.edit_document, size: 40.0, color: Colors.blue),
-                     ),
-              ));
+          switch (marker.type) {
+            case en.EditorType.point:
+              pnt = marker.infoPoint!.pnt;
+              coords = [pnt.latlng];
+              break;
+            case en.EditorType.line:
+              line = marker.infoLine!.line;
+              coords = line.coords;
+              break;
+            case en.EditorType.polygon:
+              var index = marker.infoPolygon!.indexElement;
+              polData = marker.infoPolygon!.element2[index].polData;
+              idGeometry = marker.infoPolygon!.id;
+              var pol = mProvider.forest2
+                  .firstWhere((p) => p.polygonGeometry.id == idGeometry);
+              coords = pol.polygonGeometry.coords;
+              // TODO: compute maxAreaPercent iterating over all elements
+              int forestAreaPerc = 0;
+              for (var element in marker.infoPolygon!.element2) {
+                if (element.polData.id != polData.id) {
+                  forestAreaPerc += element.polData.percentArea;
+                }
+              }
+              maxAreaPercent = maxAreaPercent - forestAreaPerc;
+              break;
+          }
+          await Navigator.pushNamed(
+            context,
+            '/greenForm',
+            arguments: inp.GreenFormArgs(
+              idGeometry: idGeometry,
+              idUser: gProvider.idUser,
+              idProject: gProvider.idProject,
+              type: marker.type,
+              coords: coords,
+              maxAreaPercent: maxAreaPercent,
+              area: area,
+              pnt: pnt,
+              line: line,
+              polData: polData,
+              updateData: true,
+            ),
+          ).then((green3) {
+            if (green3 != null) {
+              // update data
+              mProvider.initGeometries(context, gProvider.idProject).then((_) {
+                mProvider.selectedMarkerFromId(idGeometry);
+              });
+            }
+          });
+          // TODO update
+        },
+        child: Ink(
+          child:
+              const Icon(Icons.edit_document, size: 40.0, color: Colors.blue),
+        ),
+      ));
       break;
     case en.Panel.resetGeometry:
       buttons.add(InkWell(
@@ -612,7 +614,6 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
   }
   final locale = Localizations.localeOf(context).toString();
 
-
   String? selectedId;
   if (rProvider.ready && mProvider.selectedMarker2.isNotEmpty) {
     selectedId = mProvider.selectedMarker2[0].getId();
@@ -621,7 +622,7 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
   if (pProvider.switchInfo) {
     final result = rProvider.infoResult4id[selectedId];
     if (result != null) {
-      rows = result.getTableRows(parProvider.par3,locale);
+      rows = result.getTableRows(parProvider.par3, locale);
     }
   } else {
     if (mProvider.selectedMarker2.isNotEmpty) {
@@ -634,14 +635,13 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
       mProvider.selectedMarker2[0].type == en.EditorType.polygon) {
     bool addForestZone = false;
     bool deleteForestZone = false;
-    int elements =
-        mProvider.selectedMarker2[0].infoPolygon!.element2.length;
+    int elements = mProvider.selectedMarker2[0].infoPolygon!.element2.length;
     int indexElement = mProvider.selectedMarker2[0].infoPolygon!.indexElement;
     final marker = mProvider.selectedMarker2[0];
 
     int forestAreaPerc = 0;
     for (var element in marker.infoPolygon!.element2) {
-        forestAreaPerc += element.polData.percentArea;
+      forestAreaPerc += element.polData.percentArea;
     }
     if (forestAreaPerc < 100) {
       addForestZone = true;
@@ -651,79 +651,79 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
     }
 
     buttons.addAll([
-        // ADD FOREST ZONE
-        InkWell(
-            onLongPress: () {
-                if (addForestZone) {
-                    final idGeometry = marker.infoPolygon!.id;
-                    final pol = mProvider.forest2.firstWhere((p) => p.polygonGeometry.id == idGeometry);
-                    final coords = pol.polygonGeometry.coords;
-                    Navigator.pushNamed(
-                        context,
-                        '/greenForm',
-                        arguments: inp.GreenFormArgs(
-                            idGeometry:     idGeometry,
-                            idUser:         gProvider.idUser,
-                            idProject:      gProvider.idProject,
-                            type:           marker.type,
-                            coords:         coords,
-                            maxAreaPercent: 100 - forestAreaPerc,
-                            area:           pol.polygonGeometry.area,
-                            addPolygonData:  true,
-                        ),
-                    ).then((green3) {
-                        if (green3 != null) {  // update data
-                        mProvider.initForest(context, gProvider.idProject);
-                            mProvider.initGeometries(context, gProvider.idProject).then((_){
-                                mProvider.selectedMarkerFromId(idGeometry);
-                            });
-                        }
-                    });
+      // ADD FOREST ZONE
+      InkWell(
+        onLongPress: () {
+          if (addForestZone) {
+            final idGeometry = marker.infoPolygon!.id;
+            final pol = mProvider.forest2
+                .firstWhere((p) => p.polygonGeometry.id == idGeometry);
+            final coords = pol.polygonGeometry.coords;
+            Navigator.pushNamed(
+              context,
+              '/greenForm',
+              arguments: inp.GreenFormArgs(
+                idGeometry: idGeometry,
+                idUser: gProvider.idUser,
+                idProject: gProvider.idProject,
+                type: marker.type,
+                coords: coords,
+                maxAreaPercent: 100 - forestAreaPerc,
+                area: pol.polygonGeometry.area,
+                addPolygonData: true,
+              ),
+            ).then((green3) {
+              if (green3 != null) {
+                // update data
+                mProvider.initForest(context, gProvider.idProject);
+                mProvider
+                    .initGeometries(context, gProvider.idProject)
+                    .then((_) {
+                  mProvider.selectedMarkerFromId(idGeometry);
+                });
+              }
+            });
 
-                    pProvider.notifyListeners();
-                } else {
-                    SnackBar(content: Text(AppLocalizations.of(context)!.forestAreaFull));
-                }
-            },
-            child: Icon(
-                Icons.add_to_photos_outlined,
-                size: 40.0,
-                color: addForestZone == true
-                ? Colors.blue
-                : Colors.grey
-            ),
-        ),
-        // DELETE FOREST ZONE
-        InkWell(
-            onLongPress: () {
-                if (deleteForestZone) {
-                    mProvider.selectedMarker2[0].infoPolygon!.element2.removeAt(indexElement);
-                    final element = mProvider.selectedMarker2[0].infoPolygon!.element2[indexElement];
-                    // final idData = element.polData.id;
-                    // final idGeometry = element.polData.idGeometry;
-                    element.polData.dbDelete().then((_){
-                        mProvider.selectedMarker2[0].infoPolygon!.indexElement = 0;
-                        mProvider.initForest(context, gProvider.idProject);
+            pProvider.notifyListeners();
+          } else {
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.forestAreaFull));
+          }
+        },
+        child: Icon(Icons.add_to_photos_outlined,
+            size: 40.0,
+            color: addForestZone == true ? Colors.blue : Colors.grey),
+      ),
+      // DELETE FOREST ZONE
+      InkWell(
+        onLongPress: () {
+          if (deleteForestZone) {
+            mProvider.selectedMarker2[0].infoPolygon!.element2
+                .removeAt(indexElement);
+            final element = mProvider
+                .selectedMarker2[0].infoPolygon!.element2[indexElement];
+            // final idData = element.polData.id;
+            // final idGeometry = element.polData.idGeometry;
+            element.polData.dbDelete().then((_) {
+              mProvider.selectedMarker2[0].infoPolygon!.indexElement = 0;
+              mProvider.initForest(context, gProvider.idProject);
 
-                        gProvider.project!.status = 3;
-                        db.Project.setStatus(gProvider.idProject, 3);
-                        gProvider.getProjects();
-                        pProvider.notifyListeners();
-                    });
-                } else {
-                    SnackBar(content: Text(AppLocalizations.of(context)!.forestAreaOnly));
-                }
-            },
-            child: Icon(
-                Icons.delete_sweep,
-                size: 40.0,
-                color: deleteForestZone == true
-                ?Colors.blue
-                :Colors.grey
-            ),
-        ),
-        // delete forest zone
-        ]);
+              gProvider.project!.status = 3;
+              db.Project.setStatus(gProvider.idProject, 3);
+              gProvider.getProjects();
+              pProvider.notifyListeners();
+            });
+          } else {
+            SnackBar(
+                content: Text(AppLocalizations.of(context)!.forestAreaOnly));
+          }
+        },
+        child: Icon(Icons.delete_sweep,
+            size: 40.0,
+            color: deleteForestZone == true ? Colors.blue : Colors.grey),
+      ),
+      // delete forest zone
+    ]);
   }
   double initial = 0;
   double distance = 0;
@@ -735,57 +735,63 @@ Row getInfoPanel(BuildContext context, en.Panel type) {
     Expanded(
       flex: 85,
       child: mProvider.selectedMarker2.isNotEmpty
-      ? Container(
-          alignment: Alignment.topCenter,
-          // DEV
-          child: GestureDetector(
-              onPanStart: (DragStartDetails details) {
-                  initial = details.globalPosition.dy;
-              },
-              onPanUpdate: (DragUpdateDetails details) {
-                  distance= details.globalPosition.dy - initial;
-              },
-              onPanEnd: (DragEndDetails details) {
-                  initial = 0.0;
-                  if (mProvider.selectedMarker2.isNotEmpty &&
-                      mProvider.selectedMarker2[0].type == en.EditorType.polygon) {
-                      int elements =
-                              mProvider.selectedMarker2[0].infoPolygon!.element2.length - 1;
-                      int indexElement = mProvider.selectedMarker2[0].infoPolygon!.indexElement;
+          ? Container(
+              alignment: Alignment.topCenter,
+              // DEV
+              child: GestureDetector(
+                  onPanStart: (DragStartDetails details) {
+                    initial = details.globalPosition.dy;
+                  },
+                  onPanUpdate: (DragUpdateDetails details) {
+                    distance = details.globalPosition.dy - initial;
+                  },
+                  onPanEnd: (DragEndDetails details) {
+                    initial = 0.0;
+                    if (mProvider.selectedMarker2.isNotEmpty &&
+                        mProvider.selectedMarker2[0].type ==
+                            en.EditorType.polygon) {
+                      int elements = mProvider
+                              .selectedMarker2[0].infoPolygon!.element2.length -
+                          1;
+                      int indexElement = mProvider
+                          .selectedMarker2[0].infoPolygon!.indexElement;
 
                       if (distance > 75) {
-                          if (indexElement == elements) {
-                              mProvider.selectedMarker2[0].infoPolygon!.indexElement = 0;
-                          } else {
-                              mProvider.selectedMarker2[0].infoPolygon!.indexElement++;
-                          }
-                          pProvider.notifyListeners();
+                        if (indexElement == elements) {
+                          mProvider
+                              .selectedMarker2[0].infoPolygon!.indexElement = 0;
+                        } else {
+                          mProvider
+                              .selectedMarker2[0].infoPolygon!.indexElement++;
+                        }
+                        pProvider.notifyListeners();
                       } else if (distance < -75) {
-                          if (indexElement == 0) {
-                              mProvider.selectedMarker2[0].infoPolygon!.indexElement = elements;
-                          } else {
-                              mProvider.selectedMarker2[0].infoPolygon!.indexElement--;
-                          }
-                          pProvider.notifyListeners();
+                        if (indexElement == 0) {
+                          mProvider.selectedMarker2[0].infoPolygon!
+                              .indexElement = elements;
+                        } else {
+                          mProvider
+                              .selectedMarker2[0].infoPolygon!.indexElement--;
+                        }
+                        pProvider.notifyListeners();
                       }
-                  }
-              },
-              child: Table(
-                         border: const TableBorder(
-                             horizontalInside: BorderSide(
-                                 width: 1,
-                                 color: Colors.blue,
-                                 style: BorderStyle.solid)),
-                         children: rows,
-                     )
-              )
-      )
-      : Text(AppLocalizations.of(context)!.markerSelected),
-      ),
-      Expanded(flex: 15, child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: buttons
-      ))
+                    }
+                  },
+                  child: Table(
+                    border: const TableBorder(
+                        horizontalInside: BorderSide(
+                            width: 1,
+                            color: Colors.blue,
+                            style: BorderStyle.solid)),
+                    children: rows,
+                  )))
+          : Text(AppLocalizations.of(context)!.markerSelected),
+    ),
+    Expanded(
+        flex: 15,
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: buttons))
   ]);
 }
 
@@ -1044,78 +1050,78 @@ List<Widget> getPageList(BuildContext context) {
   final pProvider = Provider.of<pr.PanelProvider>(context, listen: true);
 
   var w1 = Padding(
-      padding: const EdgeInsets.only(right: 20.0),
-      child: Tooltip(
-          message: "Add Project", // Testo del tooltip
-          child: GestureDetector(
-              onTap: () async {
-                  mProvider.reset();
-                  var prj = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => inp.MyCustomFormProject(
-                              idUser: gProvider.idUser,
-                          ),
-                      ),
-                  );
-                  if (prj != null) {
-                      gProvider.projectStatus = 0;
-                      await db.Project.insertProject(prj);
-                      gProvider.getProjects();
-                      gProvider.setProject4form(prj);
-                      gProvider.currentPageIndex = 1;
-                  }
-              },
-              child: const Icon(
-                         Icons.add,
-                         size: 26.0,
-                     ),
-          ),
-          ),
+    padding: const EdgeInsets.only(right: 20.0),
+    child: Tooltip(
+      message: "Add Project", // Testo del tooltip
+      child: GestureDetector(
+        onTap: () async {
+          mProvider.reset();
+          var prj = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => inp.MyCustomFormProject(
+                idUser: gProvider.idUser,
+              ),
+            ),
           );
+          if (prj != null) {
+            gProvider.projectStatus = 0;
+            await db.Project.insertProject(prj);
+            gProvider.getProjects();
+            gProvider.setProject4form(prj);
+            gProvider.currentPageIndex = 1;
+          }
+        },
+        child: const Icon(
+          Icons.add,
+          size: 26.0,
+        ),
+      ),
+    ),
+  );
 
   //tasto impostazioni
   var w2 = PopupMenuButton<String>(
-      onSelected: (value) {
-          if (value == 'name') {
-              // ordina progetti per nome
-              gProvider.sortProjectByName();
-          } else if (value == 'date') {
-              gProvider.sortProjectByDate();
-          }
-      },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-          PopupMenuItem<String>(
-              value: 'name',
-              child: ListTile(
-                  leading: Icon(Icons.sort_by_alpha),
-                  title: Text(AppLocalizations.of(context)!.sortName),
-              ),
-          ),
-          PopupMenuItem<String>(
-              value: 'date',
-              child: ListTile(
-                  leading: Icon(Icons.calendar_today),
-                  title: Text(AppLocalizations.of(context)!.sortDate),
-              ),
-          ),
-      ],
-      child: Padding(
-          padding: const EdgeInsets.only(right: 20.0),
-          child: const Icon(Icons.filter_list),
+    onSelected: (value) {
+      if (value == 'name') {
+        // ordina progetti per nome
+        gProvider.sortProjectByName();
+      } else if (value == 'date') {
+        gProvider.sortProjectByDate();
+      }
+    },
+    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+      PopupMenuItem<String>(
+        value: 'name',
+        child: ListTile(
+          leading: Icon(Icons.sort_by_alpha),
+          title: Text(AppLocalizations.of(context)!.sortName),
+        ),
       ),
-      offset: Offset(0, 30),
-      );
+      PopupMenuItem<String>(
+        value: 'date',
+        child: ListTile(
+          leading: Icon(Icons.calendar_today),
+          title: Text(AppLocalizations.of(context)!.sortDate),
+        ),
+      ),
+    ],
+    child: Padding(
+      padding: const EdgeInsets.only(right: 20.0),
+      child: const Icon(Icons.filter_list),
+    ),
+    offset: Offset(0, 30),
+  );
 
-      var appBar = AppBar(
-          title: Text(AppLocalizations.of(context)!.projectList),
-          actions: <Widget>[w1, w2],
-      );
+  var appBar = AppBar(
+    title: Text(AppLocalizations.of(context)!.projectList),
+    actions: <Widget>[w1, w2],
+  );
 
   // -- flutter map -------------------------------------------------------------
 
-  var flutterMap =
-      Consumer2<pr.EditorProvider, pr.GlobalProvider>(builder: (context, eProvider, gProvider, child) {
+  var flutterMap = Consumer2<pr.EditorProvider, pr.GlobalProvider>(
+      builder: (context, eProvider, gProvider, child) {
     return FlutterMap(
       options: MapOptions(
         center: LatLng(mProvider.startLat, mProvider.startLon),
@@ -1127,23 +1133,30 @@ List<Widget> getPageList(BuildContext context) {
 
       // map background layer
       children: [
-          if (gProvider.mapType == 1)  // OpenStreetMap
+        if (gProvider.mapType == 1) // OpenStreetMap
           TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-              maxNativeZoom: 18,
-              maxZoom: 30,
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: 'dev.fleaflet.flutter_map.example',
+            maxNativeZoom: 18,
+            maxZoom: 30,
           )
-          else if (gProvider.mapType == 2)  // Bing satellite
-          BingMapsTileLayer(
-              apiKey: Env.bingKey,
-              imagerySet: BingMapsImagerySet.aerial,
-          )
-          else if (gProvider.mapType == 3)  // Bing hybrid
-              BingMapsTileLayer(
-                  apiKey: Env.bingKey,
-                  imagerySet: BingMapsImagerySet.aerialLabels,
-              ),
+        else if (gProvider.mapType == 2 ||
+            gProvider.mapType == 3) // Bing satellite
+          TileLayer(
+            urlTemplate:
+                'https://atlas.microsoft.com/map/tile?api-version=2024-04-01&tilesetId=microsoft.imagery&zoom={z}&x={x}&y={y}&subscription-key=${Env.azureKey}',
+            maxNativeZoom: 18,
+            maxZoom: 30,
+          ),
+        //BingMapsTileLayer(
+        //    apiKey: Env.bingKey,
+        //    imagerySet: BingMapsImagerySet.aerial,
+        //)
+        //else if (gProvider.mapType == 3)  // Bing hybrid
+        //    BingMapsTileLayer(
+        //        apiKey: Env.bingKey,
+        //        imagerySet: BingMapsImagerySet.aerialLabels,
+        //    ),
 
         CurrentLocationLayer(),
 
@@ -1192,7 +1205,7 @@ List<Widget> getPageList(BuildContext context) {
 
     children: [
       SpeedDialChild(
-        label: showDialLabel==true? loc.tree: null,
+        label: showDialLabel == true ? loc.tree : null,
         child: Tooltip(
           triggerMode: TooltipTriggerMode.longPress,
           message: loc.tree,
@@ -1234,7 +1247,7 @@ List<Widget> getPageList(BuildContext context) {
       //onLongPress: () => print('FIRST CHILD LONG PRESS'),
 
       SpeedDialChild(
-          label: showDialLabel==true? loc.treeRow: null,
+        label: showDialLabel == true ? loc.treeRow : null,
 
         // add tree row
 
@@ -1278,7 +1291,7 @@ List<Widget> getPageList(BuildContext context) {
       ),
 
       SpeedDialChild(
-          label: showDialLabel==true? loc.urbanForest: null,
+        label: showDialLabel == true ? loc.urbanForest : null,
         // add forest
 
         child: Tooltip(
@@ -1321,7 +1334,7 @@ List<Widget> getPageList(BuildContext context) {
       ),
 
       SpeedDialChild(
-        label: showDialLabel==true? loc.information: null,
+        label: showDialLabel == true ? loc.information : null,
 
         // info
 
@@ -1359,7 +1372,7 @@ List<Widget> getPageList(BuildContext context) {
         //onLongPress: () => print('SECOND CHILD LONG PRESS'),
       ),
       SpeedDialChild(
-        label: showDialLabel==true? loc.changePosition: null,
+        label: showDialLabel == true ? loc.changePosition : null,
 
         // reset geometry
 
@@ -1400,7 +1413,7 @@ List<Widget> getPageList(BuildContext context) {
       ),
 
       SpeedDialChild(
-          label: showDialLabel==true? loc.changeMap: null,
+        label: showDialLabel == true ? loc.changeMap : null,
 
         //cambio tipo di mappa
         child: Tooltip(
@@ -1435,7 +1448,7 @@ List<Widget> getPageList(BuildContext context) {
       ),
 
       SpeedDialChild(
-        label: showDialLabel==true? loc.delete: null,
+        label: showDialLabel == true ? loc.delete : null,
         // delete
         child: Tooltip(
           //parte per vedere infomazioni icona
@@ -1475,121 +1488,121 @@ List<Widget> getPageList(BuildContext context) {
   );
   //print(eProvider.handType);
 //  if (eProvider.handType == 1) {
-    return <Widget>[
-      Scaffold(
-        // project list
-        appBar: appBar,
-        body: ProjectTable(prj2: gProvider.projList),
-      ),
-      Column(children: <Widget>[
-        Expanded(
-            //flex: pProvider.heightMap,
-            flex: 60,
-            child: Container(
-                child: Stack(
-              children: <Widget>[
-                flutterMap,
-                // mancino o destro
-                Align(
-                    // floating bottons over map
-                    alignment: gProvider.idHandness == 0
-                                ?Alignment.bottomRight
-                                :Alignment.bottomLeft,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 20.0, left: 20.0, right: 20.0),
-                      child: dialButtons,
-                    )),
-              ],
-            ))),
-        Visibility(
-            visible: pProvider.showPanel,
-            //visible: true,
-            child:
-                // info bar
-                Expanded(
-                    flex: pProvider.heightPanel,
-                    child: Container(
-                      margin: const EdgeInsets.all(3),
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          top: BorderSide(width: 2.0, color: Colors.blue),
-                          bottom: BorderSide(width: 2.0, color: Colors.blue),
-                        ),
+  return <Widget>[
+    Scaffold(
+      // project list
+      appBar: appBar,
+      body: ProjectTable(prj2: gProvider.projList),
+    ),
+    Column(children: <Widget>[
+      Expanded(
+          //flex: pProvider.heightMap,
+          flex: 60,
+          child: Container(
+              child: Stack(
+            children: <Widget>[
+              flutterMap,
+              // mancino o destro
+              Align(
+                  // floating bottons over map
+                  alignment: gProvider.idHandness == 0
+                      ? Alignment.bottomRight
+                      : Alignment.bottomLeft,
+                  child: Container(
+                    margin: const EdgeInsets.only(
+                        bottom: 20.0, left: 20.0, right: 20.0),
+                    child: dialButtons,
+                  )),
+            ],
+          ))),
+      Visibility(
+          visible: pProvider.showPanel,
+          //visible: true,
+          child:
+              // info bar
+              Expanded(
+                  flex: pProvider.heightPanel,
+                  child: Container(
+                    margin: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(width: 2.0, color: Colors.blue),
+                        bottom: BorderSide(width: 2.0, color: Colors.blue),
                       ),
-                      child: getPanel(context, pProvider.panel),
-                    ))),
-      ]),
-      Container(
-        color: Colors.white,
-        alignment: Alignment.topLeft,
-        child: getResultPage(context),
-      ),
-      Container(
-          // Pagina Other a fine File
-          child: const oth.OtherWidget())
-    ];
+                    ),
+                    child: getPanel(context, pProvider.panel),
+                  ))),
+    ]),
+    Container(
+      color: Colors.white,
+      alignment: Alignment.topLeft,
+      child: getResultPage(context),
+    ),
+    Container(
+        // Pagina Other a fine File
+        child: const oth.OtherWidget())
+  ];
 }
 
 List<DropdownMenuItem<int>> getDropdownResult(
-    gi.InfoResult resultTotal,
-    Map<int, gi.InfoResult> resultSpecies,
-    Map<int, String> species3, // intersect ParamSpecies name/id with result id
-    String locale,
+  gi.InfoResult resultTotal,
+  Map<int, gi.InfoResult> resultSpecies,
+  Map<int, String> species3, // intersect ParamSpecies name/id with result id
+  String locale,
 ) {
-    List<DropdownMenuItem<int>> menuItems = [];
-    Map<int, String> aggResult = {};
-    final totString = locale == 'en' ? 'Total' : 'Totale';
+  List<DropdownMenuItem<int>> menuItems = [];
+  Map<int, String> aggResult = {};
+  final totString = locale == 'en' ? 'Total' : 'Totale';
+  menuItems.add(DropdownMenuItem(
+    value: -2,
+    child: Text(totString),
+  ));
+  species3.forEach((key, value) {
     menuItems.add(DropdownMenuItem(
-            value: -2,
-            child: Text(totString),
+      value: key,
+      child: Text(value),
     ));
-    species3.forEach((key, value) {
-        menuItems.add(DropdownMenuItem(
-                value: key,
-                child: Text(value),
-        ));
-    });
-    return menuItems;
+  });
+  return menuItems;
 }
 
 Widget getResultPage(BuildContext context) {
-    final rProvider = Provider.of<pr.ResultProvider>(context, listen: true);
-    final gProvider = Provider.of<pr.GlobalProvider>(context, listen: false);
-    final parProvider = Provider.of<pr.ParamProvider>(context, listen: false);
+  final rProvider = Provider.of<pr.ResultProvider>(context, listen: true);
+  final gProvider = Provider.of<pr.GlobalProvider>(context, listen: false);
+  final parProvider = Provider.of<pr.ParamProvider>(context, listen: false);
 
-    List<DropdownMenuItem<int>> dropdownResultItems = [];
+  List<DropdownMenuItem<int>> dropdownResultItems = [];
 
-    Widget graph = const Text('');
-    String graphUnit = '';
-    String graphName = '';
-    Text period = const Text('');
-    final locale = Localizations.localeOf(context).toString();
+  Widget graph = const Text('');
+  String graphUnit = '';
+  String graphName = '';
+  Text period = const Text('');
+  final locale = Localizations.localeOf(context).toString();
 
+  if (rProvider.infoResultTotal != null) {
+    dropdownResultItems = getDropdownResult(
+      rProvider.infoResultTotal!,
+      rProvider.infoResult4species,
+      rProvider.id2species,
+      locale,
+    );
+    period = Text(rProvider.getPeriod(locale));
+  }
 
-    if (rProvider.infoResultTotal != null) {
-        dropdownResultItems = getDropdownResult(
-            rProvider.infoResultTotal!,
-            rProvider.infoResult4species,
-            rProvider.id2species,
-            locale,
-        );
-        period = Text(rProvider.getPeriod(locale));
+  var idProject = gProvider.idProject;
+  List<TableRow> rows = [];
+  gi.InfoResult result;
+  if (rProvider.infoResultTotal != null) {
+    if (rProvider.dropdownItemId == -2) {
+      result = rProvider.infoResultTotal!;
+    } else {
+      result = rProvider.infoResult4species[rProvider.dropdownItemId]!;
     }
-
-    var idProject = gProvider.idProject;
-    List<TableRow> rows = [];
-    gi.InfoResult result;
-    if (rProvider.infoResultTotal != null) {
-        if (rProvider.dropdownItemId == -2) {
-            result = rProvider.infoResultTotal!;
-        } else {
-            result = rProvider.infoResult4species[rProvider.dropdownItemId]!;
-        }
-        graph = result.getGraph(rProvider.pollutantId, locale);
-        graphUnit = result.unitArray;
-        graphName = result.nameArray;
-        rows = result.getTableRows(parProvider.par3, locale);
-    }
+    graph = result.getGraph(rProvider.pollutantId, locale);
+    graphUnit = result.unitArray;
+    graphName = result.nameArray;
+    rows = result.getTableRows(parProvider.par3, locale);
+  }
 
   List<int> visibilityStatus2 = [-1, 0, 3];
 
@@ -1611,7 +1624,7 @@ Widget getResultPage(BuildContext context) {
         msg = AppLocalizations.of(context)!.greyServer;
         visibilityGetResult = false;
         if (gProvider.project!.hasData == 1) {
-            visibilityGetResult = true;
+          visibilityGetResult = true;
         }
         break;
       case 1:
@@ -1654,35 +1667,33 @@ Widget getResultPage(BuildContext context) {
               setProjectCoords(context);
               SnackBarAction? action;
               rProvider.sendProject(idProject).then((response) {
-                  var duration = Duration(seconds: 2);
-                  if  (response.statusCode == 404) {
-                      duration = Duration(seconds: 10);
-                      action = SnackBarAction(
-                          label: 'Copy',
-                          onPressed: () {
-                              Clipboard.setData(ClipboardData(text: response.msg));
-                          }
-                      );
-                  }
+                var duration = Duration(seconds: 2);
+                if (response.statusCode == 404) {
+                  duration = Duration(seconds: 10);
+                  action = SnackBarAction(
+                      label: 'Copy',
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: response.msg));
+                      });
+                }
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                      content: Text(response.msg),
-                      duration: duration,
-                      action: action,
+                    content: Text(response.msg),
+                    duration: duration,
+                    action: action,
                   ),
                 );
                 if (response.statusCode != 404) {
                   // db.Project.setStatus(gProvider.project!.idProject, 2);
-                    gProvider.projectStatus = 1;
-                    gProvider.project!.status = 1;
-                    // db.Project.setStatus(gProvider.project!.idProject, 1);
-                    gProvider.getProjects();
+                  gProvider.projectStatus = 1;
+                  gProvider.project!.status = 1;
+                  // db.Project.setStatus(gProvider.project!.idProject, 1);
+                  gProvider.getProjects();
                 }
               });
             },
           )));
-
 
   final language = Localizations.localeOf(context).toString();
   const infoEn = '''
@@ -1708,78 +1719,66 @@ Widget getResultPage(BuildContext context) {
     CO: Il monossido di carbonio è un gas inodore che può causare problemi respiratori
  ''';
   final infoResult = Visibility(
-      visible: visibilityInfoResult,
-      child:  Padding(
-          padding: const EdgeInsets.all(16.0),
-          child:
-          Tooltip(
-              showDuration: Duration(seconds: 20),
-              triggerMode: TooltipTriggerMode.tap,
-              preferBelow: false,
-              verticalOffset: -15,
-              margin: const EdgeInsets.fromLTRB(30, 0, 30, 0),
-              message: language == 'en' ? infoEn : infoIt,
-              child: const Icon(Icons.info)
-          ),
-      ),
-      );
-
-
-  final shareDialog = AlertDialog(
-      content:
-      Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-              ElevatedButton.icon(
-                  onPressed: (
-                  ) {
-                      db.Project.shareProject(gProvider.project!.idProject, parProvider.par3);
-                  },
-                  icon: Icon( // <-- Icon
-                      Icons.share,
-                      size: 24.0,
-                  ),
-                  label: Text('Share GeoJson (GIS)'), // <-- Text
-              )
-          ]
-      ),
-      actions: [
-          TextButton(
-              onPressed: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                  //Navigator.of(context).pop();
-              },
-              child: Text(
-                         AppLocalizations.of(context)!.close,
-                         style: TextStyle(color: Colors.blue),
-                     )
-          )
-      ]
+    visible: visibilityInfoResult,
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Tooltip(
+          showDuration: Duration(seconds: 20),
+          triggerMode: TooltipTriggerMode.tap,
+          preferBelow: false,
+          verticalOffset: -15,
+          margin: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+          message: language == 'en' ? infoEn : infoIt,
+          child: const Icon(Icons.info)),
+    ),
   );
 
-
+  final shareDialog = AlertDialog(
+      content: Column(mainAxisSize: MainAxisSize.min, children: [
+        ElevatedButton.icon(
+          onPressed: () {
+            db.Project.shareProject(
+                gProvider.project!.idProject, parProvider.par3);
+          },
+          icon: Icon(
+            // <-- Icon
+            Icons.share,
+            size: 24.0,
+          ),
+          label: Text('Share GeoJson (GIS)'), // <-- Text
+        )
+      ]),
+      actions: [
+        TextButton(
+            onPressed: () {
+              Navigator.of(context, rootNavigator: true).pop();
+              //Navigator.of(context).pop();
+            },
+            child: Text(
+              AppLocalizations.of(context)!.close,
+              style: TextStyle(color: Colors.blue),
+            ))
+      ]);
 
   final actions = <Widget>[infoResult, buttonGetResult];
-  if (visibilityInfoResult){
-      final shareButton = InkWell(
-          radius : 30.0,
-          onTap: () {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                      return shareDialog;
-                  },
-              );
-              //db.Project.shareProject(gProvider.project!.idProject, parProvider.par3);
+  if (visibilityInfoResult) {
+    final shareButton = InkWell(
+      radius: 30.0,
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return shareDialog;
           },
-          onLongPress: () {
-          },
-          child: Icon(Icons.more_vert, size: 30.0, color: Colors.black),
-      );
-      actions.add(shareButton);
-      actions.add(const SizedBox(width: 10));
+        );
+        //db.Project.shareProject(gProvider.project!.idProject, parProvider.par3);
+      },
+      onLongPress: () {},
+      child: Icon(Icons.more_vert, size: 30.0, color: Colors.black),
+    );
+    actions.add(shareButton);
+    actions.add(const SizedBox(width: 10));
   }
-
 
   return Scaffold(
       appBar: AppBar(
@@ -1794,25 +1793,21 @@ Widget getResultPage(BuildContext context) {
           Visibility(
             visible: visibleMsg,
             child: Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8),
-                child: Text(msg),
+              padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8),
+              child: Text(msg),
             ),
           ),
           Visibility(
-            visible: visibilityWaitResult,
-            child: Center(
-                child: Padding(
-                    padding: const EdgeInsets.all(50.0),
-                    child: SizedBox(
-                        height: 100,
-                        width: 100,
-                        child: CircularProgressIndicator(
+              visible: visibilityWaitResult,
+              child: Center(
+                  child: Padding(
+                      padding: const EdgeInsets.all(50.0),
+                      child: SizedBox(
+                          height: 100,
+                          width: 100,
+                          child: CircularProgressIndicator(
                             color: Colors.blue,
-                        )
-                    )
-                )
-            )
-          ),
+                          ))))),
           Visibility(
             visible: visibilityInfoResult,
             child: Column(
@@ -1950,10 +1945,11 @@ class _ProjectTableState extends State<ProjectTable> {
                                 var prj = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => inp.MyCustomFormProject(
-                                          idUser: gProvider.idUser,
-                                          project: widget.prj2[index],
-                                      )),
+                                      builder: (context) =>
+                                          inp.MyCustomFormProject(
+                                            idUser: gProvider.idUser,
+                                            project: widget.prj2[index],
+                                          )),
                                 );
                               }),
                         ),
@@ -2020,24 +2016,24 @@ class _ProjectTableState extends State<ProjectTable> {
 }
 
 Color getIconStatusColor(int status) {
-    switch (status) {
-        case -1: // project error
-            return Colors.red;
-        case 0: // project initialized
-            return Colors.grey;
-        case 1: // results are being calculated from server
-            return Colors.green;
-        case 2: // results are ready and updated
-            return Colors.blue;
-        case 3: // results are ready but outdated (project has been modified after results were calculated)
-            return Colors.orange;
-        default:
-            return Colors.black;
-    }
+  switch (status) {
+    case -1: // project error
+      return Colors.red;
+    case 0: // project initialized
+      return Colors.grey;
+    case 1: // results are being calculated from server
+      return Colors.green;
+    case 2: // results are ready and updated
+      return Colors.blue;
+    case 3: // results are ready but outdated (project has been modified after results were calculated)
+      return Colors.orange;
+    default:
+      return Colors.black;
+  }
 }
 
 String getStatusMessage(String lan, int status) {
-    if (lan == "en") {
+  if (lan == "en") {
     switch (status) {
       case -1:
         return "Project Error";
@@ -2069,5 +2065,3 @@ String getStatusMessage(String lan, int status) {
     }
   }
 }
-
-
