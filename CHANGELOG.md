@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- The satellite background of the map switches from the retired Bing/Azure imagery to Esri World Imagery, requested with the ArcGIS Location Platform key configured in the environment. When the service cannot serve that key, the map automatically falls back to the Esri World Imagery Wayback layer.
+- The OpenStreetMap background now sends a policy compliant User-Agent identifying the application and its contact address, instead of the blocked flutter_map example identifier, so the tiles are served again.
+- The map shows the credit of the imagery in use at the bottom right: "Powered by Esri" with the provider list, or "© OpenStreetMap contributors".
+
 ## [v1.0.7] - 2026-11-11
 
 This release brings the Airtree field app up to a current Android and Flutter toolchain so it can be built and distributed again, and it makes the field survey workflow usable end to end: the app now talks to the Airtree server over the current API, exports the collected observations as GeoJSON archives for downstream analysis, and offers a leaf-area-index camera workflow based on canopy greenness.
