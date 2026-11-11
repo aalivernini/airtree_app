@@ -11,6 +11,8 @@ import 'mdi_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:Airtree/src/generated/l10n/app_localizations.dart';
+import 'package:Airtree/map/imagery_provider.dart';
+import 'package:Airtree/map/raster_imagery.dart';
 
 import 'package:flutter_map_dragmarker/flutter_map_dragmarker.dart';
 import 'package:objectid/objectid.dart';
@@ -27,9 +29,6 @@ import 'icon.dart' as ic;
 import 'geo_info.dart' as gi;
 import 'io.dart' as io;
 import 'dart:async';
-import 'dart:convert';
-import 'env.dart';
-import 'package:http/http.dart' as http;
 import 'widget_other.dart' as oth;
 import 'package:flutter/services.dart';
 
@@ -421,7 +420,7 @@ Row getPanel(BuildContext context, en.Panel type) {
 }
 
 Row getMapPanel(BuildContext context) {
-  final gProvider = Provider.of<pr.GlobalProvider>(context, listen: true);
+  final imageryProvider = Provider.of<ImageryProvider>(context, listen: true);
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
@@ -430,32 +429,21 @@ Row getMapPanel(BuildContext context) {
           IconButton(
             icon: Icon(Icons.map),
             onPressed: () {
-              gProvider.setMapType(1);
+              imageryProvider.selectBackground(MapBackground.esri);
+            },
+          ),
+          Text("Esri World Imagery"),
+        ],
+      ),
+      Column(
+        children: [
+          IconButton(
+            icon: Icon(Icons.map),
+            onPressed: () {
+              imageryProvider.selectBackground(MapBackground.openStreetMap);
             },
           ),
           Text("OpenStreetMap"),
-        ],
-      ),
-      Column(
-        children: [
-          IconButton(
-            icon: Icon(Icons.map),
-            onPressed: () {
-              gProvider.setMapType(2);
-            },
-          ),
-          Text("Bing satellite"),
-        ],
-      ),
-      Column(
-        children: [
-          IconButton(
-            icon: Icon(Icons.map),
-            onPressed: () {
-              gProvider.setMapType(3);
-            },
-          ),
-          Text("Bing hybrid"),
         ],
       ),
     ],
@@ -953,95 +941,6 @@ void setProjectCoords(BuildContext context) async {
   await db.Project.setProjectCoords(gProvider.idProject, lat, lng, 1);
 }
 
-// Bing Maps
-// All compatible imagery sets
-enum BingMapsImagerySet {
-  road('RoadOnDemand', zoomBounds: (min: 0, max: 21)),
-  aerial('Aerial', zoomBounds: (min: 0, max: 20)),
-  aerialLabels('AerialWithLabelsOnDemand', zoomBounds: (min: 0, max: 20)),
-  canvasDark('CanvasDark', zoomBounds: (min: 0, max: 21)),
-  canvasLight('CanvasLight', zoomBounds: (min: 0, max: 21)),
-  canvasGray('CanvasGray', zoomBounds: (min: 0, max: 21)),
-  ordnanceSurvey('OrdnanceSurvey', zoomBounds: (min: 12, max: 17));
-
-  final String urlValue;
-  final ({int min, int max}) zoomBounds;
-
-  const BingMapsImagerySet(this.urlValue, {required this.zoomBounds});
-}
-
-// Custom tile provider that contains the quadkeys logic
-// Note that you can also extend from the CancellableNetworkTileProvider
-class BingMapsTileProvider extends NetworkTileProvider {
-  BingMapsTileProvider({super.headers});
-
-  String _getQuadKey(int x, int y, int z) {
-    final quadKey = StringBuffer();
-    for (int i = z; i > 0; i--) {
-      int digit = 0;
-      final int mask = 1 << (i - 1);
-      if ((x & mask) != 0) digit++;
-      if ((y & mask) != 0) digit += 2;
-      quadKey.write(digit);
-    }
-    return quadKey.toString();
-  }
-
-  @override
-  Map<String, String> generateReplacementMap(
-    String urlTemplate,
-    TileCoordinates coordinates,
-    TileLayer options,
-  ) =>
-      super.generateReplacementMap(urlTemplate, coordinates, options)
-        ..addAll(
-          {
-            'culture': 'en-GB', // Or your culture value of choice
-            'subdomain': options.subdomains[
-                (coordinates.x + coordinates.y) % options.subdomains.length],
-            'quadkey': _getQuadKey(coordinates.x, coordinates.y, coordinates.z),
-          },
-        );
-}
-
-// Custom `TileLayer` wrapper that can be inserted into a `FlutterMap`
-class BingMapsTileLayer extends StatelessWidget {
-  const BingMapsTileLayer({
-    super.key,
-    required this.apiKey,
-    required this.imagerySet,
-  });
-
-  final String apiKey;
-  final BingMapsImagerySet imagerySet;
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: http.get(
-        Uri.parse(
-          'http://dev.virtualearth.net/REST/V1/Imagery/Metadata/${imagerySet.urlValue}?output=json&include=ImageryProviders&key=$apiKey',
-        ),
-      ),
-      builder: (context, response) {
-        if (response.data == null) return const Placeholder();
-
-        return TileLayer(
-          urlTemplate: (((((jsonDecode(response.data!.body)
-                          as Map<String, dynamic>)['resourceSets']
-                      as List<dynamic>)[0] as Map<String, dynamic>)['resources']
-                  as List<dynamic>)[0] as Map<String, dynamic>)['imageUrl']
-              as String,
-          tileProvider: BingMapsTileProvider(),
-          subdomains: const ['t0', 't1', 't2', 't3'],
-          minNativeZoom: imagerySet.zoomBounds.min,
-          maxNativeZoom: imagerySet.zoomBounds.max,
-        );
-      },
-    );
-  }
-}
-
 List<Widget> getPageList(BuildContext context) {
   // -- Project appBar ----------------------------------------------------------
   final gProvider = Provider.of<pr.GlobalProvider>(context, listen: false);
@@ -1120,8 +1019,8 @@ List<Widget> getPageList(BuildContext context) {
 
   // -- flutter map -------------------------------------------------------------
 
-  var flutterMap = Consumer2<pr.EditorProvider, pr.GlobalProvider>(
-      builder: (context, eProvider, gProvider, child) {
+  var flutterMap = Consumer3<pr.EditorProvider, pr.GlobalProvider, ImageryProvider>(
+      builder: (context, eProvider, gProvider, imageryProvider, child) {
     return FlutterMap(
       options: MapOptions(
         center: LatLng(mProvider.startLat, mProvider.startLon),
@@ -1133,30 +1032,30 @@ List<Widget> getPageList(BuildContext context) {
 
       // map background layer
       children: [
-        if (gProvider.mapType == 1) // OpenStreetMap
+        if (imageryProvider.background == MapBackground.openStreetMap)
+          // OpenStreetMap standard tiles. The User-Agent override is applied
+          // by the parallel User-Agent slice; keep this branch as-is here.
           TileLayer(
             urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
             userAgentPackageName: 'dev.fleaflet.flutter_map.example',
             maxNativeZoom: 18,
             maxZoom: 30,
           )
-        else if (gProvider.mapType == 2 ||
-            gProvider.mapType == 3) // Bing satellite
+        else if (imageryProvider.esriTileTemplate != null)
           TileLayer(
-            urlTemplate:
-                'https://atlas.microsoft.com/map/tile?api-version=2024-04-01&tilesetId=microsoft.imagery&zoom={z}&x={x}&y={y}&subscription-key=${Env.azureKey}',
-            maxNativeZoom: 18,
-            maxZoom: 30,
+            urlTemplate: imageryProvider.esriTileTemplate!,
+            maxNativeZoom: kEsriImageryMaxNativeZoom,
+            maxZoom: 21,
+            errorTileCallback: (tile, error, stackTrace) =>
+                imageryProvider.activateEsriFallbackOnTileError(error),
+          )
+        else
+          // No usable ArcGIS key: fall back to the Wayback archive.
+          TileLayer(
+            urlTemplate: esriWaybackTileTemplate(),
+            maxNativeZoom: kEsriImageryMaxNativeZoom,
+            maxZoom: 21,
           ),
-        //BingMapsTileLayer(
-        //    apiKey: Env.bingKey,
-        //    imagerySet: BingMapsImagerySet.aerial,
-        //)
-        //else if (gProvider.mapType == 3)  // Bing hybrid
-        //    BingMapsTileLayer(
-        //        apiKey: Env.bingKey,
-        //        imagerySet: BingMapsImagerySet.aerialLabels,
-        //    ),
 
         CurrentLocationLayer(),
 

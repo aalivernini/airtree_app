@@ -21,6 +21,13 @@ The estimates are carried out with the Airtree model, implemented in the server 
 
 With this information, Airtree estimates the amount of light that is captured by the tree's canopy, simulates the opening of the stomata on the leaves (the pores through which trees breathe) and then calculates the amount of carbon and pollutants removed from the atmosphere.
 
+## Purpose and use
+Airtree is a field data-collection tool for urban forestry: field operators and
+green-space managers survey street trees and groves on site and record their
+species and biometric characteristics on a map, so that the collected data can
+be sent to an Airtree server and turned into estimates of the air pollutants
+removed by the vegetation.
+
 ## Platforms
 Airtree app is currently being developed for Android.\
 Testing through Goole play in coming soon
@@ -33,10 +40,15 @@ Testing through Goole play in coming soon
 - copy below text in your root DIR/.env
 
 ```
-# GET YOUR OWN FREE BING_API KEY FROM:
-# https://www.microsoft.com/en-us/maps/bing-maps/choose-your-bing-maps-api
-# example: BING_KEY=asgfslfghlajsh1@$r24532
-BING_KEY=MY_BING_KEY
+# GET YOUR OWN ARCGIS LOCATION PLATFORM API KEY FROM:
+# https://location.arcgis.com/
+# It is an ArcGIS Location Platform API key (not a portal token, not a JWT).
+# It is sent to ArcGIS as the "token" query parameter of the basemap
+# endpoints; "apiKey=" is rejected with error 499.
+# STORE THE VALUE WITHOUT SURROUNDING DOUBLE QUOTES:
+# a quoted value is rejected with error 498.
+# example: ARCGIS_LOCATION_KEY=27.00000.00000.00000.00000
+ARCGIS_LOCATION_KEY=MY_ARCGIS_LOCATION_KEY
 # AIRTREE SERVER ADRESS. example: ADRESS_HOME=http://211.54.1.1:5000
 ADRESS_HOME=MY_SERVER_ADRESS:5000
 # YOUR CUSTOM AIRTREE KEY.
@@ -55,6 +67,47 @@ flutter pub add --dev build_runner
 dart run build_runner build
 flutter run
 ```
+
+## Run
+The Flutter SDK is not on the default PATH of this machine, so export it first:
+```
+export PATH=/home/alessandro/aa/pack/flutter/bin:$PATH
+```
+The envied part file `lib/env.g.dart` is generated and git-ignored, so it must
+be generated before any build or run:
+```
+dart run build_runner build --delete-conflicting-outputs
+flutter run
+```
+`flutter run` installs and starts the app on the connected Android device.
+
+## Run tests
+`lib/env.g.dart` is **generated** by `envied` and is **git-ignored**: it must
+never be staged nor committed. Generate it before any build or test run, then
+run the test suite:
+```
+dart run build_runner build --delete-conflicting-outputs
+flutter test
+```
+The build **fails** when `ARCGIS_LOCATION_KEY` is missing from `.env`
+(`Environment variable not found for field 'arcgisLocationKey'.`): the field is
+deliberately not optional, because a silently empty key would downgrade every
+user to the archived imagery.
+
+## Smoke run
+The canonical smoke command is a whole-program compile, which checks every
+Dart file (including the generated `lib/env.g.dart`):
+```
+export PATH=/home/alessandro/aa/pack/flutter/bin:$PATH
+dart run build_runner build --delete-conflicting-outputs
+flutter analyze
+flutter test
+flutter build bundle
+```
+If `flutter build bundle` is unavailable in your environment, fall back to
+`flutter build apk --debug` and then to `flutter build web --release`.
+Note that the Flutter SDK is not on the default PATH, so the `export` line is
+part of the smoke run.
 
 
 

@@ -362,9 +362,6 @@ class GlobalProvider extends ChangeNotifier {
     int _languageSpecies = 0; //inglese default
     int get languageSpecies => _languageSpecies;
 
-    int _mapType = 1;
-    int get mapType => _mapType;
-
     int _handness = 0;
     int get idHandness => _handness;
 
@@ -375,23 +372,6 @@ class GlobalProvider extends ChangeNotifier {
 
     Future<void> getUserSetting() async {
         userSetting ??= await db.UserSetting.fromDb();
-    }
-
-    setMapType(int mapType) {
-        switch (mapType) {
-            case 1:
-                _mapType = 1;
-                break;
-            case 2:
-                _mapType = 2;
-                break;
-            case 3:
-                _mapType = 3;
-                break;
-            default:
-                _mapType = -1;
-        }
-        notifyListeners();
     }
 
     setLanguageInterface(int language, {bool notify = true}) {
