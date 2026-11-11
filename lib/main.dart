@@ -16,6 +16,8 @@ import 'form.dart' as inp;
 import 'camera/camera.dart' as cam;
 import 'camera/provider_lai.dart' as pr;
 
+import 'package:Airtree/map/imagery_provider.dart';
+
 import 'env.dart' ;
 String addressHome = Env.adressHome;
 
@@ -54,6 +56,9 @@ void main() async {
                 ChangeNotifierProvider(create: (context) => pr.PanelProvider()),
                 ChangeNotifierProvider(create: (context) => pr.ResultProvider()),
                 ChangeNotifierProvider(create: (context) => pr.ProviderLai()),
+                ChangeNotifierProvider(
+                    create: (context) =>
+                        ImageryProvider()..refreshAvailability()),
             ],
             child:  const MaterialApp(
                 home: NavigationBarApp(),
