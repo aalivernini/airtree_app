@@ -11,8 +11,8 @@ coordinates and projects.
 
 | Component        | Technology                                      |
 |------------------|-------------------------------------------------|
-| Framework        | Flutter 3.44.4                                  |
-| Language         | Dart 3.12.2                                     |
+| Framework        | Flutter 3.47.9                                  |
+| Language         | Dart 3.13.7                                     |
 | Map engine       | flutter_map ^6.0.1, latlong2 ^0.9.0             |
 | State management | provider ^6.0.5                                 |
 | Location         | geolocator ^10.1.0, flutter_map_location_marker |
@@ -47,6 +47,12 @@ lib/
 ├── enums.dart
 ├── l10n/
 │   └── l10n.dart           # Localization configuration
+├── map/
+│   ├── raster_imagery.dart   # Esri tile URL templates, availability probe
+│   ├── imagery_provider.dart # Active background + Wayback fallback state
+│   └── attribution.dart       # Bottom-right credit label for the imagery in use
+├── env.dart                # envied access to the .env variables
+├── privacy_terms.dart      # Terms of use and privacy notice texts
 ├── src/generated/l10n/
 │   ├── app_localizations.dart
 │   ├── app_localizations_en.dart
@@ -62,17 +68,19 @@ lib/
 │       ├── lai_wid_util.dart
 │       ├── lai_widget.dart
 │       └── shape.dart
-└── env.g.dart              # Generated envied configuration
+└── env.g.dart              # Generated envied configuration (git-ignored)
 ```
 
 **Note:** `package:` imports use the form `package:Airtree/...` (e.g., `package:Airtree/l10n/l10n.dart`).
 
 ## Environment
 
-- **Flutter:** 3.44.4
-- **Dart:** 3.12.2
+- **Flutter:** 3.47.9
+- **Dart:** 3.13.7
 - **Min SDK:** Android (see `android/app/build.gradle`)
 - **Assets:** `assets/` (general assets), `lib/l10n/` (localization JSON), `assets/fonts/materialdesignicons-webfont.ttf` (vendored MDI font)
+- **Toolchain on PATH:** the Flutter SDK is not on the default PATH; export
+  `PATH=/home/alessandro/aa/pack/flutter/bin:$PATH` before any `flutter`/`dart` command.
 
 ## Build & Run Commands
 
@@ -83,6 +91,75 @@ flutter build apk         # Build release APK
 flutter build apk --debug  # Build debug APK
 flutter analyze           # Run static analysis (dart analyze / flutter analyze)
 ```
+
+### Generated files
+
+`lib/env.g.dart` is **generated** by `envied` and is **git-ignored**: it must never be
+staged nor committed. Generate it before any build, analysis or test run:
+
+```sh
+dart run build_runner build --delete-conflicting-outputs
+```
+
+The same command also regenerates `lib/gen/fonts.gen.dart` (asset manifest), which is
+likewise git-ignored. `flutter analyze` rewrites the tracked `analysis_options.yaml` and
+`flutter pub get` rewrites the tracked `pubspec.lock`; restore both with
+`git checkout -- analysis_options.yaml pubspec.lock` before committing.
+
+### Tests and smoke run
+
+```sh
+flutter test               # unit and widget tests
+flutter build bundle       # canonical smoke run: whole-program compile
+```
+
+`flutter build bundle` is the canonical smoke command, because it compiles every Dart
+file (including the generated `lib/env.g.dart`) without needing a platform toolchain.
+If it is unavailable, fall back to `flutter build apk --debug` and then to
+`flutter build web --release`.
+
+## Configuration (envied)
+
+The ArcGIS Location Platform API key is read from the `.env` file at the package root
+through `envied`:
+
+- `lib/env.dart` declares the fields and the `part 'env.g.dart';` directive.
+- The key is the `.env` variable `ARCGIS_LOCATION_KEY`, mapped to the field
+  `Env.arcgisLocationKey` with `@EnviedField(varName: 'ARCGIS_LOCATION_KEY', obfuscate: true)`.
+  The value is an ArcGIS Location Platform API key and is sent to ArcGIS as the `token`
+  query parameter; `apiKey=` is rejected with error 499.
+- `lib/env.g.dart` is produced by `dart run build_runner build` and is git-ignored.
+- The build **fails** when `ARCGIS_LOCATION_KEY` is missing from `.env`
+  (`Environment variable not found for field 'arcgisLocationKey'.`): the field is
+  deliberately not optional, because a silently empty key would downgrade every user to
+  the archived imagery.
+- `.env` is a symlink to the shared secret store and is never staged.
+
+## Map imagery and attribution
+
+The map background is provided by the `lib/map/` capability modules:
+
+- `lib/map/raster_imagery.dart` holds the Esri World Imagery and OpenStreetMap tile URL
+  templates, the key sanitation, the availability classifier and the startup probe of
+  the Esri metadata endpoint.
+- `lib/map/imagery_provider.dart` owns the active background (Esri World Imagery or
+  OpenStreetMap), the probe result and the **Wayback fallback** state. When the Esri
+  service cannot serve the key (missing, invalid, expired, disabled, unreachable or
+  quota-exhausted), the map automatically switches to the Esri World Imagery Wayback
+  layer; the switch is one-way within a session.
+- `lib/map/attribution.dart` renders the attribution label.
+
+The map type picker lets the user choose **Esri World Imagery** or **OpenStreetMap**.
+
+**Attribution obligation:** the map must always show the credit of the imagery in use,
+bottom-right and unobstructed (never hidden under the UI or off-screen):
+
+- Esri (current imagery or Wayback fallback): the literal text "Powered by Esri" plus
+  the provider list published by the service.
+- OpenStreetMap: "© OpenStreetMap contributors".
+
+Both credits are licence text and are never translated; only the Italian connective
+wording is localized.
 
 ## Conventions
 

@@ -1,3 +1,8 @@
+/// Terms of use of the application, in Italian.
+///
+/// The Creative Commons license exception covers the Esri World Imagery
+/// content, whose terms of use are published at
+/// <https://www.esri.com/en-us/legal/terms>.
 const termsIta = '''
 Il presente documento riporta i termini e le condizioni generali di utilizzo dell’applicazione Airtree  per la progettazione del verde urbano e la stima degli inquinanti atmosferici rimossi dalla vegetazione.
 
@@ -27,7 +32,7 @@ Il Titolare non è in grado di assicurare un controllo puntuale sui Contenuti ri
 L’Applicazione consente all’utente di condividere con se stesso o con terzi: 1) i dati raccolti e le stime ricevute con l’Applicazione; 2) l’intero database dell’Applicazione. Questa ultima funzionalità è necessaria per consentire all’Interessato il trasferimento di dati dell’Applicazione su altri dispositivi. Il Titolare non esercita alcun controllo su queste modalità di condivisione.
 
 6	Licenza Creative Commons
-I Contenuti e/o i materiali disponibili sull’Applicazione sono messi a disposizione sulla base dei termini della presente licenza “Licenza Pubblica Creative Commons Attribuzione - Non Commerciale 4.0 Internazionale”, consultabile al collegamento https://creativecommons.org/licenses/by-nc/4.0/legalcode.it, fatta eccezione per le immagini di Microsoft Bing i cui termini d’uso di esplicitate al collegamento: https://www.microsoft.com/en-us/maps/bing-maps/product.
+I Contenuti e/o i materiali disponibili sull’Applicazione sono messi a disposizione sulla base dei termini della presente licenza “Licenza Pubblica Creative Commons Attribuzione - Non Commerciale 4.0 Internazionale”, consultabile al collegamento https://creativecommons.org/licenses/by-nc/4.0/legalcode.it, fatta eccezione per le immagini di Esri World Imagery, messe a disposizione secondo i termini d’uso di Esri consultabili al collegamento: https://www.esri.com/en-us/legal/terms.
 
 7	Esclusione della garanzia
 L’Applicazione viene fornita ”così come è” e ”come è disponibile” e il Titolare non fornisce alcuna garanzia esplicita o implicita in relazione all’Applicazione, né fornisce alcuna garanzia che l’Applicazione potrà soddisfare le esigenze degli Utenti o che non avrà mai interruzioni o sarà priva di errori o che sarà priva di virus o bug.
@@ -59,6 +64,11 @@ Per gli Utenti, per ogni controversia relativa alla Applicazione, esecuzione e i
 Data 20/03/2024
 ''';
 
+/// Terms of use of the application, in English.
+///
+/// The Creative Commons license exception covers the Esri World Imagery
+/// content, whose terms of use are published at
+/// <https://www.esri.com/en-us/legal/terms>.
 const termsEng = '''
 This document contains the general terms and conditions for the use of the application Airtree that allows the design of urban green and estimation of air pollutants removed by vegetation.
 
@@ -90,7 +100,7 @@ The Owner is not able to ensure timely control over the Contents received and re
 The Application allows the user to share with himself or third parties: 1) the data collected and estimates received with the Application; 2) the entire Application database. This last functionality is necessary to allow the interested party to transfer Application data to other devices. The Owner does not exercise any control over these sharing methods.
 
 6	Creative Commons License
-The Contents and/or materials available on the Application are made available on the basis of the terms of this license“Creative Commons Public Licence CC BY-NC 4.0”,  available at the address https://creativecommons.org/licenses/by-nc/4.0/legalcode , with the exception of Microsoft Bing images whose terms of use are explained at the link: https://www.microsoft.com/en-us/maps/bing-maps/product.
+The Contents and/or materials available on the Application are made available on the basis of the terms of this license“Creative Commons Public Licence CC BY-NC 4.0”,  available at the address https://creativecommons.org/licenses/by-nc/4.0/legalcode , with the exception of Esri World Imagery images, made available under the Esri terms of use explained at the link: https://www.esri.com/en-us/legal/terms.
 
 7	Exclusion of warranty
 The Application is provided "as is" and "as available" and the Owner does not provide any explicit or implicit guarantee in relation to the Application, nor does it provide any guarantee that the Application will satisfy the needs of the Users or that it will not have never interrupt or be error-free or free of viruses or bugs.
