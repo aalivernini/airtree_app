@@ -961,6 +961,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'right'**
   String get right;
+
+  /// Credit mandated verbatim by Esri for the imagery attribution
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by Esri'**
+  String get attributionEsriPowered;
+
+  /// Provider list of the current Esri World Imagery service
+  ///
+  /// In en, this message translates to:
+  /// **'Source: Esri, Vantor, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community'**
+  String get attributionEsriSources;
+
+  /// Provider list of the Esri World Imagery Wayback releases
+  ///
+  /// In en, this message translates to:
+  /// **'Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community'**
+  String get attributionEsriWaybackSources;
+
+  /// Credit required by the OpenStreetMap tile usage policy
+  ///
+  /// In en, this message translates to:
+  /// **'© OpenStreetMap contributors'**
+  String get attributionOsm;
 }
 
 class _AppLocalizationsDelegate

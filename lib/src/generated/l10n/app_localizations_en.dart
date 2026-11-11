@@ -468,4 +468,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get right => 'right';
+
+  @override
+  String get attributionEsriPowered => 'Powered by Esri';
+
+  @override
+  String get attributionEsriSources =>
+      'Source: Esri, Vantor, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community';
+
+  @override
+  String get attributionEsriWaybackSources =>
+      'Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community';
+
+  @override
+  String get attributionOsm => '© OpenStreetMap contributors';
 }

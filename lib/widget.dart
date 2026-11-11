@@ -11,6 +11,7 @@ import 'mdi_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:Airtree/src/generated/l10n/app_localizations.dart';
+import 'package:Airtree/map/attribution.dart';
 import 'package:Airtree/map/imagery_provider.dart';
 import 'package:Airtree/map/raster_imagery.dart';
 import 'package:Airtree/map/osm_tiles.dart';
@@ -1416,6 +1417,9 @@ List<Widget> getPageList(BuildContext context) {
                         bottom: 20.0, left: 20.0, right: 20.0),
                     child: dialButtons,
                   )),
+              // The credit of the imagery in use must stay visible; it is
+              // anchored to the bottom edge so the speed dial cannot cover it.
+              Positioned(right: 2, bottom: 1, child: const MapAttributionLabel()),
             ],
           ))),
       Visibility(

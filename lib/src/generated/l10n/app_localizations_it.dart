@@ -471,4 +471,18 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get right => 'destra';
+
+  @override
+  String get attributionEsriPowered => 'Powered by Esri';
+
+  @override
+  String get attributionEsriSources =>
+      'Fonte: Esri, Vantor, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN e la comunita utenti GIS';
+
+  @override
+  String get attributionEsriWaybackSources =>
+      'Fonte: Esri, Vantor, Earthstar Geographics e la comunita utenti GIS';
+
+  @override
+  String get attributionOsm => '© OpenStreetMap contributors';
 }
