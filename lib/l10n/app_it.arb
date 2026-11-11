@@ -142,6 +142,11 @@
     "delete" : "Cancella la vegetazione",
     "existingGreen" : "Questa vegetazione è esistente",
     "addNewSpecies" : "Ulteriori porzioni di bosco?",
-    "selectSpecies" : "Seleziona la specie"
+    "selectSpecies" : "Seleziona la specie",
+
+    "attributionEsriPowered" : "Powered by Esri",
+    "attributionEsriSources" : "Fonte: Esri, Vantor, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN e la comunita utenti GIS",
+    "attributionEsriWaybackSources" : "Fonte: Esri, Vantor, Earthstar Geographics e la comunita utenti GIS",
+    "attributionOsm" : "© OpenStreetMap contributors"
 
 }

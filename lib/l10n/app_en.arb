@@ -622,5 +622,25 @@
     },
     "iconAlignment" : "Map icon alignment",
     "left" : "left",
-    "right" : "right"
+    "right" : "right",
+
+    "attributionEsriPowered" : "Powered by Esri",
+    "@attributionEsriPowered" : {
+        "description" : "Credit mandated verbatim by Esri for the imagery attribution"
+    },
+
+    "attributionEsriSources" : "Source: Esri, Vantor, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community",
+    "@attributionEsriSources" : {
+        "description" : "Provider list of the current Esri World Imagery service"
+    },
+
+    "attributionEsriWaybackSources" : "Source: Esri, Vantor, Earthstar Geographics, and the GIS User Community",
+    "@attributionEsriWaybackSources" : {
+        "description" : "Provider list of the Esri World Imagery Wayback releases"
+    },
+
+    "attributionOsm" : "© OpenStreetMap contributors",
+    "@attributionOsm" : {
+        "description" : "Credit required by the OpenStreetMap tile usage policy"
+    }
 }
