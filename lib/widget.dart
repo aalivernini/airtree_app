@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:Airtree/src/generated/l10n/app_localizations.dart';
 import 'package:Airtree/map/imagery_provider.dart';
 import 'package:Airtree/map/raster_imagery.dart';
+import 'package:Airtree/map/osm_tiles.dart';
 
 import 'package:flutter_map_dragmarker/flutter_map_dragmarker.dart';
 import 'package:objectid/objectid.dart';
@@ -1033,12 +1034,15 @@ List<Widget> getPageList(BuildContext context) {
       // map background layer
       children: [
         if (imageryProvider.background == MapBackground.openStreetMap)
-          // OpenStreetMap standard tiles. The User-Agent override is applied
-          // by the parallel User-Agent slice; keep this branch as-is here.
+          // OpenStreetMap standard tiles. The User-Agent override is
+          // required: the flutter_map default is on the OpenStreetMap
+          // block list.
           TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-            maxNativeZoom: 18,
+            urlTemplate: osmTileTemplate,
+            tileProvider: NetworkTileProvider(
+              headers: {'User-Agent': osmUserAgent},
+            ),
+            maxNativeZoom: kOsmMaxNativeZoom,
             maxZoom: 30,
           )
         else if (imageryProvider.esriTileTemplate != null)
