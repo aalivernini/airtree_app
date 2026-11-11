@@ -11,6 +11,7 @@ import 'mdi_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:Airtree/src/generated/l10n/app_localizations.dart';
+import 'package:Airtree/map/osm_tiles.dart';
 
 import 'package:flutter_map_dragmarker/flutter_map_dragmarker.dart';
 import 'package:objectid/objectid.dart';
@@ -1135,9 +1136,13 @@ List<Widget> getPageList(BuildContext context) {
       children: [
         if (gProvider.mapType == 1) // OpenStreetMap
           TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'dev.fleaflet.flutter_map.example',
-            maxNativeZoom: 18,
+            urlTemplate: osmTileTemplate,
+            // The User-Agent override is required: the flutter_map default
+            // is on the OpenStreetMap block list.
+            tileProvider: NetworkTileProvider(
+              headers: {'User-Agent': osmUserAgent},
+            ),
+            maxNativeZoom: kOsmMaxNativeZoom,
             maxZoom: 30,
           )
         else if (gProvider.mapType == 2 ||
