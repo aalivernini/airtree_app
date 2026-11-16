@@ -50,7 +50,7 @@ lib/
 ├── map/
 │   ├── raster_imagery.dart   # Esri tile URL templates, availability probe
 │   ├── imagery_provider.dart # Active background + Wayback fallback state
-│   └── attribution.dart       # Bottom-right credit label for the imagery in use
+│   └── attribution.dart       # Bottom-left credit label for the imagery in use
 ├── env.dart                # envied access to the .env variables
 ├── privacy_terms.dart      # Terms of use and privacy notice texts
 ├── src/generated/l10n/
@@ -152,7 +152,7 @@ The map background is provided by the `lib/map/` capability modules:
 The map type picker lets the user choose **Esri World Imagery** or **OpenStreetMap**.
 
 **Attribution obligation:** the map must always show the credit of the imagery in use,
-bottom-right and unobstructed (never hidden under the UI or off-screen):
+bottom-left and unobstructed (never hidden under the UI or off-screen):
 
 - Esri (current imagery or Wayback fallback): the literal text "Powered by Esri" plus
   the provider list published by the service.

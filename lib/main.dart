@@ -47,6 +47,19 @@ Future<void> setPrivacyAccepted() async {
 void main() async {
     WidgetsFlutterBinding.ensureInitialized();
 
+    // The Android status bar (top) is always hidden: the map and the panels
+    // are the only content the user needs and the top bar steals space.
+    // Only the bottom system bar stays visible.
+    await SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: <SystemUiOverlay>[SystemUiOverlay.bottom],
+    );
+
+    // Android re-enables the system overlays while the on-screen keyboard is
+    // visible and does not restore them when it is dismissed, so the status
+    // bar would come back for good after the first text entry.
+    WidgetsBinding.instance.addObserver(_SystemUiOverlayGuard());
+
     runApp(MultiProvider(
             providers: [
                 ChangeNotifierProvider(create: (context) => pr.ParamProvider()),
@@ -261,3 +274,41 @@ class NavigationPageState extends State<NavigationPage> {
                 );
             }
         }
+
+/// Restores the hidden top system overlay after the on-screen keyboard is
+/// dismissed.
+///
+/// Android re-enables the system overlays while the keyboard is visible and
+/// does not restore them when it closes, so the status bar would come back
+/// for good after the first text entry. The engine restores the previous
+/// overlay state only when the application loses and regains the focus, which
+/// never happens on a form screen, so the state is re-asserted here.
+class _SystemUiOverlayGuard with WidgetsBindingObserver {
+    /// Whether the on-screen keyboard was covering the app at the previous
+    /// window metrics change.
+    bool _keyboardVisible = false;
+
+    @override
+    void didChangeMetrics() {
+        final bool keyboardVisible = _isKeyboardVisible();
+        if (_keyboardVisible && !keyboardVisible) {
+            // The keyboard has just been dismissed. Android refuses to change
+            // the overlay visibility during the second that follows the
+            // keyboard closing, so the restore is delayed accordingly.
+            Future<void>.delayed(const Duration(milliseconds: 1100), () {
+                SystemChrome.restoreSystemUIOverlays();
+            });
+        }
+        _keyboardVisible = keyboardVisible;
+    }
+
+    /// Reports whether the on-screen keyboard currently covers the app.
+    bool _isKeyboardVisible() {
+        for (final view in WidgetsBinding.instance.platformDispatcher.views) {
+            if (view.viewInsets.bottom > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+}

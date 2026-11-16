@@ -17,6 +17,28 @@ subprojects {
                 if (namespace == null) {
                     namespace project.group
                 }
+                // Some plugins still pin an old compileSdk (e.g. 31). AGP 9
+                // enforces that a module compiles against at least the
+                // compileSdk its AndroidX dependencies require, so raise every
+                // module to at least 34.
+                if (compileSdk < 34) {
+                    compileSdkVersion 34
+                }
+                // AGP 9 raises the default Java source/target compatibility from
+                // Java 8 to Java 11, while several plugins still pin the Kotlin
+                // jvmTarget to 1.8. Align every module on Java/Kotlin 17 so the
+                // Kotlin JVM target validation passes.
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+        if (project.plugins.hasPlugin('org.jetbrains.kotlin.android')) {
+            project.kotlin {
+                compilerOptions {
+                    jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+                }
             }
         }
     }

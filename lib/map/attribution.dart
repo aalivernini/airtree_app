@@ -7,11 +7,11 @@ import 'package:Airtree/src/generated/l10n/app_localizations.dart';
 
 /// Font size of the attribution label.
 ///
-/// The requirement asks for a very small credit, so 8 px is used. Esri's own
+/// The requirement asks for a very small credit, so 10 px is used. Esri's own
 /// guidance recommends 12 px or larger; the size is kept in this single
 /// constant so it can be raised in one place if the stricter recommendation
 /// has to be met.
-const double kAttributionFontSize = 8.0;
+const double kAttributionFontSize = 10.0;
 
 /// Licence page of the Esri attribution.
 const String kEsriLicenceUrl = 'https://www.esri.com';
@@ -31,7 +31,7 @@ const double kAttributionBackgroundOpacity = 0.65;
 /// Largest fraction of the screen width the attribution label may occupy.
 const double kAttributionMaxWidthFactor = 0.7;
 
-/// The very small credit label shown at the bottom-right of the map.
+/// The very small credit label shown at the bottom-left of the map.
 ///
 /// OpenStreetMap and Esri both require the credit of the imagery in use to be
 /// visible on the map and not hidden beneath other user interface, so the
@@ -89,7 +89,7 @@ class MapAttributionLabel extends StatelessWidget {
         ),
         child: Text.rich(
           span,
-          textAlign: TextAlign.right,
+          textAlign: TextAlign.left,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(

@@ -8,7 +8,7 @@ Three defects in the Airtree Flutter app (`/home/alessandro/aa/git/ring/modeling
 
 1. **OSM 403.** The OpenStreetMap background (`lib/widget.dart:1136-1142`) sends `userAgentPackageName: 'dev.fleaflet.flutter_map.example'`. flutter_map 6.2.1 turns that into the wire header `User-Agent: flutter_map (dev.fleaflet.flutter_map.example)` (`tile_layer.dart:333-337`), and that exact string is on OSM's block denylist. OSM answers **HTTP 200** with `content-type: image/png`, header `x-blocked: Access denied. See https://operations.osmfoundation.org/policies/tiles/`, and a rendered "403 Access blocked" PNG — so the failure is completely silent in the app and invisible to any status-code check.
 2. **Bing/Azure imagery.** The only satellite background is `https://atlas.microsoft.com/map/tile?...&subscription-key=${Env.azureKey}` (`lib/widget.dart:1143-1150`). It must become Esri World Imagery, authenticated with the ArcGIS location API key that already exists in `.env` as `ARCGIS_LOCATION_KEY`, with a graceful fallback to Esri World Imagery Wayback when the free quota is not available.
-3. **No attribution at all.** `grep -rn "attribution" lib/` → zero hits. OSM and Esri both require a visible, unobstructed credit. A very small label must sit at the bottom-right of the map, showing the credit of the imagery actually in use.
+3. **No attribution at all.** `grep -rn "attribution" lib/` → zero hits. OSM and Esri both require a visible, unobstructed credit. A very small label must sit at the bottom-left of the map, showing the credit of the imagery actually in use.
 
 ### Decisions taken during clarification
 
@@ -41,7 +41,7 @@ Three defects in the Airtree Flutter app (`/home/alessandro/aa/git/ring/modeling
 - Consequence: detection must combine (i) a **one-shot startup probe** of the key-bearing metadata endpoint and (ii) **runtime tile-load errors** on the Esri layer. The classifier must treat *any* non-image / non-200 outcome as "primary unavailable" — that is the only safe rule given no published quota code.
 
 **D. Attribution wording (verbatim, fetched live on 2026-11-11):**
-- Esri current World Imagery — service `copyrightText`: `"Source: Esri, Vantor, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community"`. Esri additionally mandates the literal text **"Powered by Esri"**, with the word *Esri* linked to `https://www.esri.com`, displayed bottom-right, unobstructed, ≥12 px recommended, colour `#323232` on `#ffffff` at 65 % opacity. Source: <https://developers.arcgis.com/documentation/esri-and-data-attribution/interactive-maps/>.
+- Esri current World Imagery — service `copyrightText`: `"Source: Esri, Vantor, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community"`. Esri additionally mandates the literal text **"Powered by Esri"**, with the word *Esri* linked to `https://www.esri.com`, displayed bottom-left, unobstructed, ≥12 px recommended, colour `#323232` on `#ffffff` at 65 % opacity. Source: <https://developers.arcgis.com/documentation/esri-and-data-attribution/interactive-maps/>.
 - Esri World Imagery Wayback — item `accessInformation` for every recent release (e.g. `5b7cef1b0dcc42698c1f52fb415f202c`, `089e60f6167847f8a14726009c16db66`): `"Esri, Vantor, Earthstar Geographics, and the GIS User Community"`.
 - OSM — `"© OpenStreetMap contributors"`, with *OpenStreetMap* linking to `https://www.openstreetmap.org/copyright`; OSMF accepts the historical forms `© OpenStreetMap contributors` / `© OpenStreetMap` and requires the credit to be **clearly visible, in the vicinity of the map, never hidden beneath UI or off-screen**. Source: <https://operations.osmfoundation.org/policies/tiles/> and <https://wiki.osmfoundation.org/wiki/Licence/Attribution_Guidelines>.
 - The OSM credit is **not** a required part of the Esri World Imagery credit (that service's provider list contains no OSM entry). Credits are therefore **per active layer**, exactly as the user asked.
@@ -88,7 +88,7 @@ Three defects in the Airtree Flutter app (`/home/alessandro/aa/git/ring/modeling
 | Capability | Files | Responsibility |
 |---|---|---|
 | **map background imagery** (new) | `lib/map/raster_imagery.dart` (new), `lib/map/imagery_provider.dart` (new) | Which raster source the map draws, its tile URL template, the availability probe, and the runtime fallback state |
-| **map attribution** (new) | `lib/map/attribution.dart` (new) | The tiny bottom-right credit label, dynamic per active layer, linked to the licence pages |
+| **map attribution** (new) | `lib/map/attribution.dart` (new) | The tiny bottom-left credit label, dynamic per active layer, linked to the licence pages |
 | **app state** | `lib/providers.dart` | Existing providers; the map-type field moves out to the imagery capability |
 | **map UI** | `lib/widget.dart`, `lib/main.dart` | Hosts the `FlutterMap`, the layer switch, the map-type picker, the overlay stack |
 | **configuration** | `lib/env.dart` (generated part `lib/env.g.dart`, gitignored) | envied access to `.env` |
@@ -117,7 +117,7 @@ Three defects in the Airtree Flutter app (`/home/alessandro/aa/git/ring/modeling
 
 lib/widget.dart  ──> FlutterMap(children: [ EsriTileLayer | OsmTileLayer, ...overlays ])
                  └─> Stack(children: [ FlutterMap, Align(SpeedDial) ])
-                       └─> Positioned(right:2, bottom:1) -> MapAttributionLabel
+                       └─> Positioned(left:2, bottom:1) -> MapAttributionLabel
                              reads ImageryProvider state + AppLocalizations
                              -> RichText(credit) + tap -> url_launcher(licence URL)
 ```
@@ -137,7 +137,7 @@ lib/widget.dart  ──> FlutterMap(children: [ EsriTileLayer | OsmTileLayer, ..
 |---|---|---|
 | `lib/map/raster_imagery.dart` (new) | Esri/OSM tile URL templates, key sanitation, availability classification, the startup probe | ≈ 150 (limit 500, split threshold 550) |
 | `lib/map/imagery_provider.dart` (new) | `ImageryProvider` (ChangeNotifier): active background, fallback state, probe application, attribution inputs | ≈ 130 (limit 500, split threshold 550) |
-| `lib/map/attribution.dart` (new) | `MapAttributionLabel` widget: tiny bottom-right credit, per layer, tappable | ≈ 110 (limit 500, split threshold 550) |
+| `lib/map/attribution.dart` (new) | `MapAttributionLabel` widget: tiny bottom-left credit, per layer, tappable | ≈ 110 (limit 500, split threshold 550) |
 | `lib/env.dart` (modified) | envied fields: drop `BING_KEY`/`AZURE_KEY`/`AZURE_ID`, add `ARCGIS_LOCATION_KEY` | 15 → 12 (limit 500) |
 | `lib/widget.dart` (modified) | New layer construction, map-type picker, attribution overlay; delete the dead Bing classes | 1800 → ≈ 1680 (**must shrink**) |
 | `lib/providers.dart` (modified) | Remove the map-type field and setter | 746 → ≈ 715 (**must shrink**) |
@@ -555,7 +555,7 @@ dart run build_runner build --delete-conflicting-outputs   # regenerates lib/env
 - **Classification**: CONTENDED — shares `lib/widget.dart` with T1 and T2, and the ARB files with T4 (no overlap in practice)
 - **Parallel-OK**: none
 - **Slice count**: 5 total (see T1).
-- **Business logic**: The map always shows, at its bottom-right corner, a small credit for the imagery actually in use — the Esri credit while Esri World Imagery (or its Wayback fallback) is active, and the OpenStreetMap credit while the OSM background is active — with the provider names and licence links required by both licences.
+- **Business logic**: The map always shows, at its bottom-left corner, a small credit for the imagery actually in use — the Esri credit while Esri World Imagery (or its Wayback fallback) is active, and the OpenStreetMap credit while the OSM background is active — with the provider names and licence links required by both licences.
 - **Code**:
 
   **ARB keys** (en file gets a `@key` description block, it file does not — the it file carries no `@` metadata today):
@@ -578,40 +578,40 @@ dart run build_runner build --delete-conflicting-outputs   # regenerates lib/env
   **`lib/map/attribution.dart`** (new) — `class MapAttributionLabel extends StatelessWidget`:
   - Reads `ImageryProvider` (via `context.watch`) to know the active background and whether the Wayback fallback is active, and `AppLocalizations.of(context)` for the strings.
   - Renders a `Text.rich` with: the Esri variant = `attributionEsriPowered` + `" | "` + (the provider's runtime `esriCopyrightText` when available, else `attributionEsriSources`; when the Wayback fallback is active, `attributionEsriWaybackSources`); the OSM variant = `attributionOsm`.
-  - Style: `fontSize: 8.0`, `color: Color(0xFF323232)`, background `Color(0xFFFFFF).withOpacity(0.65)` (Esri's recommended colours), `padding: EdgeInsets.symmetric(horizontal: 3, vertical: 1)`, `textAlign: TextAlign.right`, `maxLines: 2`.
+  - Style: `fontSize: 10.0`, `color: Color(0xFF323232)`, background `Color(0xFFFFFF).withOpacity(0.65)` (Esri's recommended colours), `padding: EdgeInsets.symmetric(horizontal: 3, vertical: 1)`, `textAlign: TextAlign.left`, `maxLines: 2`.
   - The whole label is tappable: `GestureDetector` → `launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)` with `url_launcher` — `https://www.esri.com` for the Esri variant, `https://www.openstreetmap.org/copyright` for the OSM variant. `url_launcher` is already a direct dependency (`pubspec.yaml:37`).
-  - The label must be **unobstructed**: it is placed at the very bottom edge of the map so it never collides with the speed dial, whose `Align` has a 20 px bottom margin (`lib/widget.dart:1506-1515`).
+  - The label must be **unobstructed**: it is the last child of the map `Stack`, so it is painted on top of the speed dial and can never be hidden by it, and it sits at the very bottom edge of the map, below the dial button, which is inset by a 20 px bottom and left margin (`lib/widget.dart:1506-1515`).
 
   **`lib/widget.dart`** — inside the map `Stack` (`lib/widget.dart:1503-1516`), add a third child:
   ```dart
   Positioned(
-    right: 2,
+    left: 2,
     bottom: 1,
     child: const MapAttributionLabel(),
   ),
   ```
   placed **after** the speed-dial `Align` so the credit is drawn on top and stays legible. Do not change the speed dial's geometry.
 
-  **`test/map/attribution_test.dart`** — widget tests: with the ESRI background active the rendered text contains `Powered by Esri` and `Esri`; with the OSM background active it contains `OpenStreetMap contributors` and does **not** contain `Powered by Esri`; with the Wayback fallback active it contains `Esri, Vantor, Earthstar Geographics`; the label is positioned at the bottom-right of its parent.
+  **`test/map/attribution_test.dart`** — widget tests: with the ESRI background active the rendered text contains `Powered by Esri` and `Esri`; with the OSM background active it contains `OpenStreetMap contributors` and does **not** contain `Powered by Esri`; with the Wayback fallback active it contains `Esri, Vantor, Earthstar Geographics`; the label is positioned at the bottom-left of its parent.
 - **Test**: `test/map/attribution_test.dart` as described; the existing suite stays green.
 - **Integration**: the `Positioned` child in the map `Stack` in `lib/widget.dart`.
 - **README**: none (no setup/run/test change).
 - **.gitignore**: none.
 - **Decisions**:
   - *General*: the credit is rendered by the app rather than by flutter_map's `SimpleAttributionWidget`, because that widget hardcodes the prefix `flutter_map | © ` and cannot carry a per-layer, localized, tappable string.
-  - *General*: the label is 8 px — the user asked for a very small label; Esri's own guidance recommends 12 px, so the size is a single named constant (`kAttributionFontSize`) and is the one-line change if the stricter recommendation must be met. This deviation is deliberate and recorded here and in the code comment.
-  - *General*: the label sits at the bottom edge of the map stack rather than in a corner reserved for it, because the speed dial already occupies the bottom-right corner with a 20 px inset; the credit stays below it and is never covered, as both licences require.
+  - *General*: the label is 10 px — the user asked for a very small label; Esri's own guidance recommends 12 px, so the size is a single named constant (`kAttributionFontSize`) and is the one-line change if the stricter recommendation must be met. This deviation is deliberate and recorded here and in the code comment.
+  - *General*: the label is anchored to the bottom-left corner of the map stack and is the last child of that stack, so it is painted on top of the speed dial, which is inset by 20 px; the credit stays visible and unobstructed, as both licences require.
   - *ARB*: the provider names and `Powered by Esri` are never translated — they are the licence text, not UI copy; only the Italian connective wording is localized.
   - *ARB*: the Esri provider list is a static fallback; when the imagery provider holds a live `copyrightText` from the service, that value wins, so a credit change upstream is picked up without a release.
 - **Acceptance**: same §7 report and §10 checklist as T1, with the smoke run green; `flutter gen-l10n` output committed and consistent with the ARB files; the attribution widget tests pass; the `=== EFFECTIVE LINES ===` block shows `lib/map/attribution.dart` below 500 and `lib/widget.dart` smaller than 1800; no SPEC reference in any docstring.
 - **Commit**:
   ```
-  feat: show the imagery attribution at the bottom right of the map
+  feat: show the imagery attribution at the bottom left of the map
 
   Summary: The app displayed OpenStreetMap and Esri imagery without any
   visible credit, which both the OpenStreetMap tile usage policy and the
   Esri attribution requirements forbid. The map now always shows a small
-  bottom-right label with the credit of the imagery in use, localized through
+  bottom-left label with the credit of the imagery in use, localized through
   the ARB files.
 
   Decisions:
@@ -622,11 +622,13 @@ dart run build_runner build --delete-conflicting-outputs   # regenerates lib/env
     links to esri.com; the OpenStreetMap credit links to the copyright page.
   - Licence text is not translated: "Powered by Esri" and the OpenStreetMap
     contributor form are kept verbatim in both locales.
-  - The label is anchored to the bottom edge of the map so the speed dial,
-    which already occupies the bottom-right corner, can never cover it.
+  - The label is anchored to the bottom-left corner of the map and is painted
+    last in the map stack, so it is drawn on top of the speed dial and can never
+    be hidden by it; the dial button is inset by 20 px, so a label at the very
+    bottom edge of the map does not sit under it.
 
   Files:
-  - lib/map/attribution.dart: the bottom-right credit label, per active layer,
+  - lib/map/attribution.dart: the bottom-left credit label, per active layer,
     with the licence links.
   - lib/l10n/app_en.arb: English credit strings.
   - lib/l10n/app_it.arb: Italian credit strings.
@@ -736,7 +738,7 @@ dart run build_runner build --delete-conflicting-outputs   # regenerates lib/env
 
 ## References
 
-- Esri attribution requirements: <https://developers.arcgis.com/documentation/esri-and-data-attribution/interactive-maps/> — "Powered by Esri", bottom-right, ≥ 12 px, `#323232` on `#ffffff` at 65 %.
+- Esri attribution requirements: <https://developers.arcgis.com/documentation/esri-and-data-attribution/interactive-maps/> — "Powered by Esri", bottom-left, ≥ 12 px, `#323232` on `#ffffff` at 65 %.
 - Esri data attributions: <https://www.esri.com/en-us/legal/terms/data-attributions> · terms: <https://www.esri.com/en-us/legal/terms>
 - Esri Location Platform key authentication: <https://developers.arcgis.com/documentation/security-and-authentication/api-key-authentication/>
 - Esri World Imagery service: <https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer?f=json> — item `10df2279f9684e4a9f6a7f08febac2a9`, owner `esri`, `accessInformation` "Esri, Vantor, Earthstar Geographics, and the GIS User Community"

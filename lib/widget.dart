@@ -1417,9 +1417,12 @@ List<Widget> getPageList(BuildContext context) {
                         bottom: 20.0, left: 20.0, right: 20.0),
                     child: dialButtons,
                   )),
-              // The credit of the imagery in use must stay visible; it is
-              // anchored to the bottom edge so the speed dial cannot cover it.
-              Positioned(right: 2, bottom: 1, child: const MapAttributionLabel()),
+              // The credit of the imagery in use must stay visible; it is the
+              // last child of the Stack, so it is painted on top of the speed
+              // dial and can never be hidden by it, and it sits at the very
+              // bottom edge of the map, below the dial button, which is inset
+              // by 20 px.
+              Positioned(left: 2, bottom: 1, child: const MapAttributionLabel()),
             ],
           ))),
       Visibility(

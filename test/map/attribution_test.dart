@@ -69,7 +69,7 @@ void main() {
     expect(text, contains('Esri, Vantor, Earthstar Geographics'));
   });
 
-  testWidgets('the label sits in the lower right corner of the map',
+  testWidgets('the label sits in the bottom left corner of the map',
       (WidgetTester tester) async {
     final imagery = ImageryProvider();
     imagery.selectBackground(MapBackground.esri);
@@ -83,7 +83,7 @@ void main() {
           child: Stack(
             children: <Widget>[
               Positioned(
-                right: 2,
+                left: 2,
                 bottom: 1,
                 width: 150,
                 child: MapAttributionLabel(),
@@ -95,9 +95,13 @@ void main() {
     ));
 
     final rect = tester.getRect(find.byType(MapAttributionLabel));
-    expect(rect.right, closeTo(398, 1.0));
+    expect(rect.left, closeTo(2, 1.0));
     expect(rect.bottom, closeTo(299, 1.0));
-    expect(rect.left, greaterThan(200));
+    expect(rect.right, lessThan(200));
     expect(rect.top, greaterThan(150));
+
+    final richText = tester.widget<RichText>(find.byType(RichText).first);
+    final span = richText.text as TextSpan;
+    expect(span.style?.fontSize, 10.0);
   });
 }
