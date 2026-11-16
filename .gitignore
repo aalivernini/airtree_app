@@ -51,3 +51,14 @@ app.*.map.json
 env.g.dart
 TODO.txt
 licenses_3d_party.txt
+
+# Local debug dumps from the ArcGIS/Esri imagery investigation — never commit
+/bt.bin
+/bt2.bin
+/i1.bin
+/i2.bin
+/cs.json
+/ti.json
+
+# Generated FlutterGen asset manifest (see AGENTS.md)
+lib/gen/fonts.gen.dart
