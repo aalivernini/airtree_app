@@ -7,9 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-- The satellite background of the map switches from the retired Bing/Azure imagery to Esri World Imagery, requested with the ArcGIS Location Platform key configured in the environment. When the service cannot serve that key, the map automatically falls back to the Esri World Imagery Wayback layer.
-- The OpenStreetMap background now sends a policy compliant User-Agent identifying the application and its contact address, instead of the blocked flutter_map example identifier, so the tiles are served again.
-- The map shows the credit of the imagery in use at the bottom right: "Powered by Esri" with the provider list, or "© OpenStreetMap contributors".
+## [v1.0.8] - 2026-11-16
+
+This release restores a usable satellite background for the field survey: the app now requests Esri World Imagery with the ArcGIS Location Platform key configured in the environment, falls back automatically to the archived Wayback layer when that key cannot be served, sends a policy compliant request identity to OpenStreetMap, and always credits the imagery actually in use on the map.
+
+### This release (since v1.0.7)
+
+- The satellite background uses Esri World Imagery requested with the platform key configured in the environment, replacing the imagery the tile service no longer serves.
+- When the imagery service cannot serve the configured key, the map switches automatically to the archived Wayback layer instead of leaving the operator without a background.
+- The OpenStreetMap background identifies the application and its contact address in its tile requests, so those tiles are served again instead of being refused.
+- The map always shows the credit of the imagery in use, in the bottom left corner, in the language of the user, with the provider list and the licence link.
+- The Android status bar is hidden while the app is in use and stays hidden after the on-screen keyboard is dismissed, leaving the whole screen to the map and the survey panels.
+- The new imagery messages are carried in both the English and the Italian locales.
 
 ## [v1.0.7] - 2026-11-11
 
